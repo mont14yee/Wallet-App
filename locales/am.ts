@@ -364,6 +364,7 @@ export default {
 
     // Investments
     investments: 'ኢንቨስትመንቶች',
+    invest: 'ኢንቨስት',
     investmentsDescription: 'የኢንቨስትመንት ፖርትፎሊዮዎን ይከታተሉ እና ያቀናብሩ።',
     addInvestment: 'አዲስ ኢንቨስትመንት ያክሉ',
     newInvestment: 'አዲስ ኢንቨስትመንት',

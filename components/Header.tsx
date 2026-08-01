@@ -7,9 +7,10 @@ interface HeaderProps {
     activeView: ViewType;
     userProfile?: UserProfile;
     onSelectFeature?: (feature: FeatureType, origin?: { x: number, y: number }) => void;
+    setActiveView?: (view: ViewType) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeView, userProfile, onSelectFeature }) => {
+const Header: React.FC<HeaderProps> = ({ activeView, userProfile, onSelectFeature, setActiveView }) => {
     const { t } = useLanguage();
 
     if (activeView === ViewType.Dashboard) {
@@ -28,13 +29,15 @@ const Header: React.FC<HeaderProps> = ({ activeView, userProfile, onSelectFeatur
                         <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{userProfile?.name || 'Guest User'}</span>
                     </div>
                 </div>
-
                 <div className="flex items-center gap-3">
                     <button className="px-4 py-1.5 rounded-full border border-cyan-400 text-cyan-500 text-sm font-medium tracking-wide hover:bg-cyan-50 dark:hover:bg-cyan-900/30 transition-colors">
                         Add Card
                     </button>
-                    <button className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <i className="far fa-bell"></i>
+                    <button 
+                        onClick={() => setActiveView?.(ViewType.Settings)}
+                        className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                        <i className="fas fa-cog"></i>
                     </button>
                 </div>
             </header>
@@ -43,12 +46,15 @@ const Header: React.FC<HeaderProps> = ({ activeView, userProfile, onSelectFeatur
 
     return (
         <header className="pt-12 pb-6 px-6 relative z-20 bg-transparent flex items-center justify-between">
-            <button className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => {/* Left to be handled by App router if needed */}}>
+            <button className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setActiveView?.(ViewType.Dashboard)}>
                  <i className="fas fa-chevron-left text-sm"></i>
             </button>
             <h1 className="text-base font-semibold text-gray-800 dark:text-gray-100">{t(activeView)}</h1>
-            <button className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                 <i className="fas fa-sliders-h text-sm"></i>
+            <button 
+                onClick={() => setActiveView?.(ViewType.Settings)}
+                className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+                 <i className="fas fa-cog text-sm"></i>
             </button>
         </header>
     );

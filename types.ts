@@ -4,12 +4,12 @@ export enum ViewType {
     Expenses = 'expenses',
     More = 'more',
     Settings = 'settings',
+    Investments = 'investments',
 }
 
 export enum FeatureType {
     ActivityLog = 'activityLog',
     Savings = 'savings',
-    Investments = 'investments',
     Calculator = 'calculator',
     Converter = 'converter',
     Reports = 'reports',

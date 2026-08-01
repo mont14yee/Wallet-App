@@ -364,6 +364,7 @@ export default {
 
     // Investments
     investments: 'Investments',
+    invest: 'Invest',
     investmentsDescription: 'Track and manage your investment portfolio.',
     addInvestment: 'Add Investment',
     newInvestment: 'New Investment',

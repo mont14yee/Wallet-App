@@ -9,6 +9,7 @@ interface InvestmentsViewProps {
     addInvestment: (item: Omit<Investment, 'id'>) => void;
     updateInvestment: (item: Investment) => void;
     sellInvestment: (id: number) => void;
+    deleteInvestment: (id: number) => void;
 }
 
 const InvestmentFormModal: React.FC<{
@@ -77,7 +78,8 @@ const InvestmentCard: React.FC<{
     item: Investment;
     onUpdate: (item: Investment) => void;
     onSell: (id: number) => void;
-}> = ({ item, onUpdate, onSell }) => {
+    onDelete: (id: number) => void;
+}> = ({ item, onUpdate, onSell, onDelete }) => {
     const { t, currencySettings } = useLanguage();
     const [newCurrentPrice, setNewCurrentPrice] = useState(item.currentPrice.toString());
     const [isUpdating, setIsUpdating] = useState(false);
@@ -101,9 +103,22 @@ const InvestmentCard: React.FC<{
         }
     };
     
+    const handleDelete = () => {
+        if(window.confirm(`${t('delete')} ${item.name}?`)) {
+            onDelete(item.id);
+        }
+    };
+
     return (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
-            <div className="flex justify-between items-start">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative group">
+            <button 
+                onClick={handleDelete} 
+                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                aria-label={t('delete')}
+            >
+                <i className="fas fa-trash text-sm"></i>
+            </button>
+            <div className="flex justify-between items-start pr-8">
                 <div>
                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">{item.name} <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({item.type})</span></h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{t('purchaseDate')}: {item.purchaseDate}</p>
@@ -128,7 +143,7 @@ const InvestmentCard: React.FC<{
                 ) : (
                     <button onClick={() => setIsUpdating(true)} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">{t('update')}</button>
                 )}
-                <button onClick={handleSell} className="text-sm font-semibold text-red-500 dark:text-red-400 hover:underline">{t('sell')}</button>
+                <button onClick={handleSell} className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">{t('sell')}</button>
             </div>
         </div>
     );
@@ -137,7 +152,7 @@ const InvestmentCard: React.FC<{
 
 const COLORS = ['#64748b', '#2196f3', '#ff9800', '#4caf50', '#f44336'];
 
-const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInvestment, updateInvestment, sellInvestment }) => {
+const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInvestment, updateInvestment, sellInvestment, deleteInvestment }) => {
     const { t, currencySettings } = useLanguage();
     const [showForm, setShowForm] = useState(false);
     
@@ -200,7 +215,7 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
 
             <div className="space-y-4">
                 {investments.length > 0 ? (
-                    investments.map(inv => <InvestmentCard key={inv.id} item={inv} onUpdate={updateInvestment} onSell={sellInvestment} />)
+                    investments.map(inv => <InvestmentCard key={inv.id} item={inv} onUpdate={updateInvestment} onSell={sellInvestment} onDelete={deleteInvestment} />)
                 ) : (
                     <div className="text-center py-16">
                         <i className="fas fa-seedling text-6xl text-gray-300 dark:text-gray-600"></i>

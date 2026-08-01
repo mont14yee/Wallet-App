@@ -183,10 +183,16 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
     const isOverdue = new Date(loan.dueDate) < new Date() && loan.outstandingAmount > 0;
     const progress = loan.totalAmount > 0 ? ((loan.totalAmount - loan.outstandingAmount) / loan.totalAmount) * 100 : 0;
     
-    const handleDelete = () => {
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (window.confirm(t('loanDeleteConfirm'))) {
             onDelete(loan.id);
         }
+    };
+
+    const handleToggleExpand = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onToggleExpand();
     };
 
     return (
@@ -214,7 +220,7 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
                  <div className="flex-shrink-0 flex flex-col items-end gap-2">
                      <span className={`text-xl font-bold ${isLent ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>{formatCurrency(loan.totalAmount, currencySettings)}</span>
                      <div className="flex gap-2">
-                        <button onClick={onToggleExpand} className="text-sm text-blue-600 dark:text-blue-400 hover:underline"><i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}></i></button>
+                        <button onClick={handleToggleExpand} className="text-sm text-blue-600 dark:text-blue-400 hover:underline"><i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}></i></button>
                         <button onClick={handleDelete} className="text-sm text-red-500 dark:text-red-400 hover:underline"><i className="fas fa-trash"></i></button>
                     </div>
                 </div>

@@ -55,20 +55,6 @@ const MoreView: React.FC<MoreViewProps> = ({ onSelectFeature }) => {
             color: 'border-yellow-500'
         },
         {
-            type: FeatureType.Investments,
-            icon: 'fas fa-chart-line',
-            title: t('investments'),
-            description: t('investmentsDescription'),
-            color: 'border-blue-500'
-        },
-        {
-            type: FeatureType.Reports,
-            icon: 'fas fa-file-invoice-dollar',
-            title: t('reports'),
-            description: t('reportsDescription'),
-            color: 'border-teal-500'
-        },
-        {
             type: FeatureType.Subscriptions,
             icon: 'fas fa-sync-alt',
             title: t('subscriptions'),
@@ -88,6 +74,13 @@ const MoreView: React.FC<MoreViewProps> = ({ onSelectFeature }) => {
             title: t('activityLog'),
             description: t('activityLogDescription'),
             color: 'border-cyan-500'
+        },
+        {
+            type: FeatureType.Reports,
+            icon: 'fas fa-file-invoice-dollar',
+            title: t('reports'),
+            description: t('reportsDescription'),
+            color: 'border-teal-500'
         }
     ];
 

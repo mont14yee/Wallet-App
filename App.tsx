@@ -423,6 +423,9 @@ const App: React.FC = () => {
         }
     }, [investments, addTransaction, t]);
 
+    const deleteInvestment = useCallback((id: number) => {
+        setInvestments(prev => prev.filter(item => item.id !== id));
+    }, []);
 
     const renderView = () => {
         const filteredIncome = categoryFilter ? income.filter(i => i.category === categoryFilter) : income;
@@ -473,6 +476,14 @@ const App: React.FC = () => {
                     setFeatureOrigin(origin || null);
                     setActiveFeature(feature);
                 }} />;
+            case ViewType.Investments:
+                 return <div className="min-h-screen pt-4 pb-24"><InvestmentsView
+                        investments={investments}
+                        addInvestment={addInvestment}
+                        updateInvestment={updateInvestment}
+                        sellInvestment={sellInvestment}
+                        deleteInvestment={deleteInvestment}
+                    /></div>;
             case ViewType.Settings:
                  return <div className="min-h-screen pt-4"><SettingsAndAboutView
                         theme={theme}
@@ -562,15 +573,6 @@ const App: React.FC = () => {
                         theme={theme}
                     />
                 </FullScreenContainer>;
-            case FeatureType.Investments:
-                 return <FullScreenContainer title={t('investments')} icon="fas fa-chart-line">
-                    <InvestmentsView
-                        investments={investments}
-                        addInvestment={addInvestment}
-                        updateInvestment={updateInvestment}
-                        sellInvestment={sellInvestment}
-                    />
-                 </FullScreenContainer>;
             case FeatureType.Subscriptions:
                 return <FullScreenContainer title={t('subscriptions')} icon="fas fa-sync-alt">
                     <SubscriptionsView
@@ -661,6 +663,7 @@ const App: React.FC = () => {
                 <Header 
                     activeView={activeView} 
                     userProfile={userProfile}
+                    setActiveView={setActiveView}
                     onSelectFeature={(feature, origin) => {
                         setFeatureOrigin(origin || null);
                         setActiveFeature(feature);
