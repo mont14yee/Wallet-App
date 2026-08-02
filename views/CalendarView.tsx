@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ScheduledTransaction, Loan, Subscription, TransactionType, LoanType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, formatLocalDate } from '../constants';
 
 interface CalendarViewProps {
     scheduled: ScheduledTransaction[];
@@ -57,7 +57,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ scheduled, loans, subscript
         const events: Record<string, CalendarEvent[]> = {};
 
         const addEvent = (dateStr: string, event: CalendarEvent) => {
-            const dateKey = new Date(dateStr).toISOString().split('T')[0];
+            const dateKey = dateStr;
             if (!events[dateKey]) {
                 events[dateKey] = [];
             }
@@ -119,7 +119,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ scheduled, loans, subscript
 
     const selectedDayEvents = useMemo(() => {
         if (!selectedDate) return [];
-        const dateKey = selectedDate.toISOString().split('T')[0];
+        const dateKey = formatLocalDate(selectedDate);
         return eventsByDate[dateKey] || [];
     }, [selectedDate, eventsByDate]);
 
@@ -139,7 +139,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ scheduled, loans, subscript
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                     {days.map(d => {
-                        const dateKey = d.toISOString().split('T')[0];
+                        const dateKey = formatLocalDate(d);
                         const isCurrentMonth = d.getMonth() === currentDate.getMonth();
                         const isToday = d.getTime() === today.getTime();
                         const isSelected = selectedDate && d.getTime() === selectedDate.getTime();

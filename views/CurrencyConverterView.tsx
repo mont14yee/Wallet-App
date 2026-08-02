@@ -1,6 +1,6 @@
+import { multiplyMoney } from '../utils/money';
 import React, { useState } from 'react';
 import { formatCurrency } from '../constants';
-import { GoogleGenAI } from "@google/genai";
 import { useLanguage } from '../contexts/LanguageContext';
 
 const CurrencyConverter: React.FC = () => {
@@ -34,18 +34,15 @@ const CurrencyConverter: React.FC = () => {
         }
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `What is the current exchange rate for 1 ${fromCurrency} to ${toCurrency}? Please provide only the numerical value of the conversion rate, nothing else. For example: 0.017`;
-            
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
-                contents: prompt,
-                config: {
-                    tools: [{googleSearch: {}}],
-                },
+            const response = await fetch('/api/convert-currency', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fromCurrency, toCurrency })
             });
-
-            const rateText = response.text.trim().replace(/,/g, '');
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            
+            const rateText = data.text.trim().replace(/,/g, '');
             const rate = parseFloat(rateText);
 
             if (isNaN(rate)) {
@@ -53,7 +50,7 @@ const CurrencyConverter: React.FC = () => {
                 throw new Error('Could not parse the exchange rate from the response.');
             }
 
-            const convertedAmount = numAmount * rate;
+            const convertedAmount = multiplyMoney(numAmount, rate);
             setResult(formatCurrency(convertedAmount, { ...currencySettings, symbol: toCurrency }));
 
         } catch (e) {

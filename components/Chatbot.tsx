@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Chat } from "@google/genai";
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface ChatbotProps {
@@ -19,38 +18,23 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const chatRef = useRef<Chat | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isOpen) {
-            // Initialize chat when component opens
-            try {
-                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-                chatRef.current = ai.chats.create({
-                    model: 'gemini-2.5-flash',
-                    config: {
-                        systemInstruction: `You are a helpful financial assistant for a budget management app called 'Wallet' (ዋሌት). Your goal is to answer user questions about personal finance, budgeting, saving, and how to use the app's features. Be friendly, clear, and concise. Do not ask for personal financial data. You can explain concepts like income, expenses, targets, and reports. Keep your answers relatively short and easy to understand.`,
-                    },
-                });
-                setMessages([
-                    {
-                        id: Date.now(),
-                        text: t('chatbotWelcome'),
-                        sender: 'bot'
-                    }
-                ]);
-            } catch (err) {
-                console.error("Failed to initialize chatbot:", err);
-                setError(t('chatbotErrorInit'));
-            }
+            setMessages([
+                {
+                    id: Date.now(),
+                    text: t('chatbotWelcome'),
+                    sender: 'bot'
+                }
+            ]);
         } else {
             // Reset when closed
             setMessages([]);
             setInput('');
             setIsLoading(false);
             setError(null);
-            chatRef.current = null;
         }
     }, [isOpen, t]);
     
@@ -60,7 +44,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || isLoading || !chatRef.current) return;
+        if (!input.trim() || isLoading) return;
 
         const userMessage: Message = { id: Date.now(), text: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
@@ -69,8 +53,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
         setError(null);
 
         try {
-            const response = await chatRef.current.sendMessage({ message: input });
-            const botMessage: Message = { id: Date.now() + 1, text: response.text, sender: 'bot' };
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages, input }),
+            });
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            const botMessage: Message = { id: Date.now() + 1, text: data.text, sender: 'bot' };
             setMessages(prev => [...prev, botMessage]);
         } catch (err) {
             console.error("Gemini API error:", err);
@@ -102,7 +92,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
                         <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
                             {msg.sender === 'bot' && <div className="w-8 h-8 rounded-full bg-slate-600 dark:bg-gray-700 flex items-center justify-center text-white flex-shrink-0"><i className="fas fa-robot"></i></div>}
                             <div className={`max-w-[80%] p-3 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-lg'}`}>
-                                <p className="text-sm" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br />') }}></p>
+                                <p className="text-sm">
+                                    {msg.text.split('\n').map((line, i, arr) => (
+                                        <React.Fragment key={i}>
+                                            {line}
+                                            {i < arr.length - 1 && <br />}
+                                        </React.Fragment>
+                                    ))}
+                                </p>
                             </div>
                         </div>
                     ))}

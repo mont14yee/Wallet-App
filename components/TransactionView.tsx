@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 
 import React, { useState, useMemo } from 'react';
 import { Transaction } from '../types';
@@ -85,7 +86,7 @@ const TransactionForm: React.FC<{
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (name && amount && date && category) {
+        if (name && amount && parseFloat(amount) > 0 && date && category) {
             if (onAddCategory && !categories.find(c => c.toLowerCase() === category.toLowerCase())) {
                 onAddCategory(category);
             }
@@ -104,7 +105,8 @@ const TransactionForm: React.FC<{
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('amount')} ({currencySettings.symbol})</label>
-                        <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={t('amountPlaceholder')} className={inputClasses} required />
+                        <input type="number" min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} placeholder={t('amountPlaceholder')} className={inputClasses} required />
+                        {amount && parseFloat(amount) <= 0 && <p className="text-xs text-red-500 mt-1">Amount must be greater than 0</p>}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('date')}</label>
@@ -158,20 +160,20 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
                 const itemDate = new Date(item.date);
                 return itemDate >= currentMonthStart && itemDate <= now;
             })
-            .reduce((sum, item) => sum + item.amount, 0);
+            .reduce((sum, item) => addMoney(sum, item.amount), 0);
 
         const previousMonthTotal = allItems
             .filter(item => {
                 const itemDate = new Date(item.date);
                 return itemDate >= firstDayOfPreviousMonth && itemDate <= lastDayOfPreviousMonth;
             })
-            .reduce((sum, item) => sum + item.amount, 0);
+            .reduce((sum, item) => addMoney(sum, item.amount), 0);
 
         if (previousMonthTotal === 0) {
             return currentMonthTotal > 0 ? t('comparisonNew') : t('comparisonNoPreviousData');
         }
 
-        const percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+        const percentageChange = multiplyMoney(divideMoney(subtractMoney(currentMonthTotal, previousMonthTotal), previousMonthTotal), 100);
         
         if (Math.abs(percentageChange) < 0.1) {
             return t('comparisonNoChange');
@@ -194,7 +196,7 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
         allItems.forEach(item => {
             const date = new Date(item.date);
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            grouped[monthKey] = (grouped[monthKey] || 0) + item.amount;
+            grouped[monthKey] = addMoney(grouped[monthKey] || 0, item.amount);
         });
         
         const monthFormatter = new Intl.DateTimeFormat(language === 'am' ? 'am-ET' : 'en-US', { month: 'short', year: '2-digit' });

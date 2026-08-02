@@ -1,7 +1,8 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo } from 'react';
 import { Subscription, SubscriptionType, SubscriptionHealth, Frequency } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, formatLocalDate } from '../constants';
 import BloomingFlowerChart from '../components/charts/BloomingFlowerChart';
 
 interface SubscriptionsViewProps {
@@ -121,7 +122,7 @@ const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({ subscriptions, ad
             // Update
             const originalSub = subscriptions.find(s => s.id === formData.id);
             if (originalSub && originalSub.amount !== formData.amount && originalSub.type === SubscriptionType.Expense) {
-                const diff = ((formData.amount - originalSub.amount) / originalSub.amount) * 100;
+                const diff = multiplyMoney(divideMoney(subtractMoney(formData.amount, originalSub.amount), originalSub.amount), 100);
                 if (diff > 0) {
                     setPriceAlert(t('priceHikeAlert', diff.toFixed(0)));
                 } else if (diff < 0) {
@@ -194,7 +195,7 @@ const SubscriptionFormModal: React.FC<{ sub: Subscription | null; onSave: (data:
         amount: sub?.amount || '',
         type: sub?.type || SubscriptionType.Expense,
         frequency: sub?.frequency || Frequency.Monthly,
-        renewalDate: sub?.renewalDate || new Date().toISOString().split('T')[0],
+        renewalDate: sub?.renewalDate || formatLocalDate(new Date()),
         category: sub?.category || '',
         cancellationUrl: sub?.cancellationUrl || '',
         isVariable: sub?.isVariable || false,

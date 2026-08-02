@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../../utils/money';
 import React, { useMemo, useState, useCallback } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from 'recharts';
 import { Transaction } from '../../types';
@@ -78,13 +79,13 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ data, theme, onCategoryCl
         }
     }, [onCategoryClick]);
 
-    const totalExpenses = useMemo(() => data.reduce((sum, item) => sum + item.amount, 0), [data]);
+    const totalExpenses = useMemo(() => data.reduce((sum, item) => addMoney(sum, item.amount), 0), [data]);
     
     const chartData = useMemo(() => {
         const categoryMap: { [key: string]: number } = {};
         data.forEach(item => {
             if (categoryMap[item.category]) {
-                categoryMap[item.category] += item.amount;
+                categoryMap[item.category] = addMoney(categoryMap[item.category], item.amount);
             } else {
                 categoryMap[item.category] = item.amount;
             }

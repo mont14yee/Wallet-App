@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../../utils/money';
 import React, { useMemo } from 'react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
 import { Subscription, SubscriptionType, Frequency } from '../../types';
@@ -35,7 +36,7 @@ const BloomingFlowerChart: React.FC<BloomingFlowerChartProps> = ({ data, theme }
         return <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">{t('noIncomeStreams')}</div>;
     }
 
-    const totalAnnualIncome = chartData.reduce((sum, item) => sum + item.amount, 0);
+    const totalAnnualIncome = chartData.reduce((sum, item) => addMoney(sum, item.amount), 0);
 
     return (
         <div className="relative w-full h-80">

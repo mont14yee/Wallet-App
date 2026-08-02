@@ -186,19 +186,3 @@ export interface Subscription {
     isVariable?: boolean; // For income streams with variability
     health: SubscriptionHealth;
 }
-// FIX: Added ShoppingList and ShoppingListItem interfaces for HarvestHavenView.
-export interface ShoppingListItem {
-    id: number;
-    name: string;
-    quantity: string;
-    estimatedPrice: number;
-    isPurchased: boolean;
-}
-
-export interface ShoppingList {
-    id: number;
-    name: string;
-    category: string;
-    frequency: Frequency;
-    items: ShoppingListItem[];
-}

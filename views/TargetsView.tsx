@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo, useCallback } from 'react';
 import { SavingsGoal, ExtraContribution, CompoundingFrequency } from '../types';
 import { formatCurrency } from '../constants';
@@ -13,37 +14,32 @@ interface SavingsViewProps {
     theme: 'light' | 'dark';
 }
 
-const calculateProjection = (goal: SavingsGoal) => {
-    const { startingBalance, monthlyContribution, interestRate, compoundingFrequency, deadline, extraContributions } = goal;
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const endDate = new Date(deadline);
+const compoundBalance = (goal: SavingsGoal, fromDate: Date, toDate: Date) => {
+    const { startingBalance, monthlyContribution, interestRate, compoundingFrequency, extraContributions } = goal;
+    const months = (toDate.getFullYear() - fromDate.getFullYear()) * 12 + (toDate.getMonth() - fromDate.getMonth());
     
-    if (endDate <= today) return { projection: [], currentValue: startingBalance, futureValue: startingBalance };
+    if (months < 0) return { projection: [], futureValue: startingBalance };
 
-    const months = (endDate.getFullYear() - today.getFullYear()) * 12 + (endDate.getMonth() - today.getMonth());
     const n = { [CompoundingFrequency.Daily]: 365, [CompoundingFrequency.Monthly]: 12, [CompoundingFrequency.Yearly]: 1 }[compoundingFrequency];
     const r = interestRate / 100;
     
-    const projectionData = [];
+    const projectionData: { date: Date, balance: number }[] = [];
     let balance = startingBalance;
-
-    const monthFormatter = new Intl.DateTimeFormat('default', { month: 'short', year: '2-digit' });
-    let currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    let currentDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
 
     for (let i = 0; i <= months; i++) {
-        projectionData.push({ date: monthFormatter.format(currentDate), balance: balance });
+        projectionData.push({ date: new Date(currentDate), balance: balance });
 
         const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
         
         // Apply interest
         if (interestRate > 0) {
             if (compoundingFrequency === CompoundingFrequency.Monthly) {
-                balance *= (1 + r / n);
+                balance = multiplyMoney(balance, 1 + r / n);
             } else if (compoundingFrequency === CompoundingFrequency.Daily) {
-                balance *= Math.pow(1 + r / n, daysInMonth);
+                balance = multiplyMoney(balance, Math.pow(1 + r / n, daysInMonth));
             } else if (compoundingFrequency === CompoundingFrequency.Yearly && currentDate.getMonth() === 11) {
-                balance *= (1 + r / n);
+                balance = multiplyMoney(balance, 1 + r / n);
             }
         }
 
@@ -54,14 +50,32 @@ const calculateProjection = (goal: SavingsGoal) => {
         const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         extraContributions.forEach(c => {
             if (c.date.startsWith(monthKey)) {
-                balance += c.amount;
+                balance = addMoney(balance, c.amount);
             }
         });
 
         currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
-    return { projection: projectionData, currentValue: startingBalance, futureValue: balance };
+    return { projection: projectionData, futureValue: balance };
+};
+
+const calculateProjection = (goal: SavingsGoal) => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const endDate = new Date(goal.deadline);
+    
+    if (endDate <= today) return { projection: [], currentValue: goal.startingBalance, futureValue: goal.startingBalance };
+
+    const { projection, futureValue } = compoundBalance(goal, today, endDate);
+    
+    const monthFormatter = new Intl.DateTimeFormat('default', { month: 'short', year: '2-digit' });
+    const formattedProjection = projection.map(p => ({
+        date: monthFormatter.format(p.date),
+        balance: p.balance
+    }));
+
+    return { projection: formattedProjection, currentValue: goal.startingBalance, futureValue };
 };
 
 const GrowthChart: React.FC<{ goal: SavingsGoal; projection: any[], theme: 'light' | 'dark' }> = ({ goal, projection, theme }) => {
@@ -98,27 +112,10 @@ const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: number) => v
     const { projection, futureValue } = useMemo(() => calculateProjection(item), [item]);
     
     const currentValue = useMemo(() => {
-         const { startingBalance, monthlyContribution, interestRate, compoundingFrequency, extraContributions } = item;
          const startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
          const today = new Date();
-         const months = (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth());
-         const n = { [CompoundingFrequency.Daily]: 365, [CompoundingFrequency.Monthly]: 12, [CompoundingFrequency.Yearly]: 1 }[compoundingFrequency];
-         const r = interestRate / 100;
-         let balance = startingBalance;
-         
-         let currentDate = new Date(startDate);
-         for(let i=0; i<months; i++){
-            balance *= (1 + r/n);
-            balance += monthlyContribution;
-            const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-            extraContributions.forEach(c => {
-                if (c.date.startsWith(monthKey)) {
-                    balance += c.amount;
-                }
-            });
-            currentDate.setMonth(currentDate.getMonth() + 1);
-         }
-         return balance;
+         const { projection } = compoundBalance(item, startDate, today);
+         return projection.length > 0 ? projection[projection.length - 1].balance : item.startingBalance;
     }, [item]);
 
 

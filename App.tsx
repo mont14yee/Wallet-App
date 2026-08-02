@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from './utils/money';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ViewType, Transaction, SavingsGoal, TransactionType, AllTransaction, UserProfile, FeatureType, Loan, LoanType, Repayment, ExtraContribution, Subscription, ScheduledTransaction, Investment } from './types';
 import { INITIAL_INCOME, INITIAL_EXPENSES, INITIAL_SAVINGS_GOALS, getIncomeCategories, getAllExpenseCategories, getShoppingCategories, INITIAL_LOANS, INITIAL_SUBSCRIPTIONS, INITIAL_SCHEDULED_TRANSACTIONS, INITIAL_INVESTMENTS } from './constants';
@@ -223,9 +224,9 @@ const App: React.FC = () => {
         expenses.filter(t => shoppingCategories.includes(t.category))
     , [expenses, shoppingCategories]);
 
-    const totalIncome = useMemo(() => income.reduce((sum, item) => sum + item.amount, 0), [income]);
-    const totalExpenses = useMemo(() => expenses.reduce((sum, item) => sum + item.amount, 0), [expenses]);
-    const netAmount = useMemo(() => totalIncome - totalExpenses, [totalIncome, totalExpenses]);
+    const totalIncome = useMemo(() => income.reduce((sum, item) => addMoney(sum, item.amount), 0), [income]);
+    const totalExpenses = useMemo(() => expenses.reduce((sum, item) => addMoney(sum, item.amount), 0), [expenses]);
+    const netAmount = useMemo(() => subtractMoney(totalIncome, totalExpenses), [totalIncome, totalExpenses]);
 
     const totalAssetsLent = useMemo(() => loans.filter(l => l.type === LoanType.Lent).reduce((sum, item) => sum + item.outstandingAmount, 0), [loans]);
     const totalLiabilitiesBorrowed = useMemo(() => loans.filter(l => l.type === LoanType.Borrowed).reduce((sum, item) => sum + item.outstandingAmount, 0), [loans]);
@@ -245,18 +246,25 @@ const App: React.FC = () => {
             alert(t('noDataToExport'));
             return;
         }
+
+        const sanitizeCsvField = (field: string) => {
+            if (/^[=+\-@]/.test(field)) {
+                return `'${field}`;
+            }
+            return field;
+        };
     
         const headers = [t('csvType'), t('csvDate'), t('csvName'), t('csvCategory'), `${t('csvAmount')} (${currencySettings.symbol})`];
         const csvRows = [
-            headers.join(','), // header row
+            headers.map(sanitizeCsvField).join(','), // header row
         ];
     
         for (const item of data) {
             const row = [
-                item.type,
+                `"${sanitizeCsvField(item.type).replace(/"/g, '""')}"`,
                 item.date,
-                `"${item.name.replace(/"/g, '""')}"`,
-                `"${item.category.replace(/"/g, '""')}"`,
+                `"${sanitizeCsvField(item.name).replace(/"/g, '""')}"`,
+                `"${sanitizeCsvField(item.category).replace(/"/g, '""')}"`,
                 item.amount.toFixed(2)
             ].join(',');
             csvRows.push(row);
@@ -345,7 +353,7 @@ const App: React.FC = () => {
                     const newRepayment = { ...repayment, id: Date.now() };
                     return {
                         ...loan,
-                        outstandingAmount: Math.max(0, loan.outstandingAmount - repayment.amount),
+                        outstandingAmount: Math.max(0, subtractMoney(loan.outstandingAmount, repayment.amount)),
                         repayments: [newRepayment, ...loan.repayments],
                     };
                 }
@@ -410,7 +418,7 @@ const App: React.FC = () => {
     const sellInvestment = useCallback((id: number) => {
         const investmentToSell = investments.find(inv => inv.id === id);
         if (investmentToSell) {
-            const gain = (investmentToSell.currentPrice - investmentToSell.purchasePrice) * investmentToSell.quantity;
+            const gain = multiplyMoney(subtractMoney(investmentToSell.currentPrice, investmentToSell.purchasePrice), investmentToSell.quantity);
             if (gain > 0) {
                 addTransaction(TransactionType.Income, {
                     name: `${t('sell')} ${investmentToSell.name}`,

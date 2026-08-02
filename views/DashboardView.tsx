@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 
 import React, { useState, useMemo } from 'react';
 import { Transaction, ViewType } from '../types';
@@ -106,7 +107,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
 
         const getCategoryBreakdown = (txs: Transaction[]) => {
             const map: Record<string, number> = {};
-            txs.forEach(t => map[t.category] = (map[t.category] || 0) + t.amount);
+            txs.forEach(t => map[t.category] = addMoney(map[t.category] || 0, t.amount));
             return Object.entries(map)
                 .map(([name, amount]) => ({ name, amount }))
                 .sort((a, b) => b.amount - a.amount);
@@ -115,8 +116,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
         return {
             income: filteredIncome,
             expenses: filteredExpenses,
-            incomeTotal: filteredIncome.reduce((sum, item) => sum + item.amount, 0),
-            expensesTotal: filteredExpenses.reduce((sum, item) => sum + item.amount, 0),
+            incomeTotal: filteredIncome.reduce((sum, item) => addMoney(sum, item.amount), 0),
+            expensesTotal: filteredExpenses.reduce((sum, item) => addMoney(sum, item.amount), 0),
             incomeBreakdown: getCategoryBreakdown(filteredIncome),
             expenseBreakdown: getCategoryBreakdown(filteredExpenses),
         };
@@ -137,9 +138,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                 groupedByMonth[monthKey] = { income: 0, expenses: 0 };
             }
             if (tx.type === 'income') {
-                groupedByMonth[monthKey].income += tx.amount;
+                groupedByMonth[monthKey].income = addMoney(groupedByMonth[monthKey].income, tx.amount);
             } else {
-                groupedByMonth[monthKey].expenses += tx.amount;
+                groupedByMonth[monthKey].expenses = addMoney(groupedByMonth[monthKey].expenses, tx.amount);
             }
         });
         
@@ -154,7 +155,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                     month: monthFormatter.format(date),
                     income: values.income,
                     expenses: values.expenses,
-                    balance: values.income - values.expenses
+                    balance: subtractMoney(values.income, values.expenses)
                 }
             })
             .sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -277,8 +278,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                         </div>
                         <div>
                             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('periodNetAmount')}</p>
-                            <p className={`text-lg font-extrabold ${filteredData.incomeTotal - filteredData.expensesTotal >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500'}`}>
-                                {formatCurrency(filteredData.incomeTotal - filteredData.expensesTotal, currencySettings)}
+                            <p className={`text-lg font-extrabold ${subtractMoney(filteredData.incomeTotal, filteredData.expensesTotal) >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500'}`}>
+                                {formatCurrency(subtractMoney(filteredData.incomeTotal, filteredData.expensesTotal), currencySettings)}
                             </p>
                         </div>
                     </div>

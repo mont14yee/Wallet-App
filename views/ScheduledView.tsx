@@ -1,7 +1,8 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo, useCallback } from 'react';
 import { ScheduledTransaction, TransactionType, Frequency, Transaction } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 import ViewContainer from '../components/ViewContainer';
 
 interface ScheduledViewProps {
@@ -128,7 +129,7 @@ const ScheduledItemCard: React.FC<{
 }> = ({ item, onLog, onDelete }) => {
     const { t, currencySettings } = useLanguage();
     const isIncome = item.type === TransactionType.Income;
-    const isDue = new Date(item.nextDueDate) <= new Date();
+    const isDue = parseLocalDate(item.nextDueDate) <= new Date();
 
     const frequencyMap = {
         [Frequency.Weekly]: t('weekly'),
@@ -179,7 +180,7 @@ const ScheduledView: React.FC<ScheduledViewProps> = ({ scheduled, addScheduled, 
 
         const nextDueDate = getNextDueDate(item.nextDueDate, item.frequency);
 
-        if(item.endDate && new Date(nextDueDate) > new Date(item.endDate)) {
+        if(item.endDate && parseLocalDate(nextDueDate) > parseLocalDate(item.endDate)) {
             deleteScheduled(item.id);
         } else {
             updateScheduled({ ...item, nextDueDate });
@@ -192,12 +193,12 @@ const ScheduledView: React.FC<ScheduledViewProps> = ({ scheduled, addScheduled, 
         next30Days.setDate(now.getDate() + 30);
 
         return scheduled.reduce((acc, item) => {
-            const dueDate = new Date(item.nextDueDate);
+            const dueDate = parseLocalDate(item.nextDueDate);
             if(dueDate >= now && dueDate <= next30Days) {
                 if(item.type === TransactionType.Income) {
-                    acc.upcomingIncome += item.amount;
+                    acc.upcomingIncome = addMoney(acc.upcomingIncome, item.amount);
                 } else {
-                    acc.upcomingExpenses += item.amount;
+                    acc.upcomingExpenses = addMoney(acc.upcomingExpenses, item.amount);
                 }
             }
             return acc;

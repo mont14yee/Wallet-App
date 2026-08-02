@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo } from 'react';
 import { Investment } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -84,9 +85,9 @@ const InvestmentCard: React.FC<{
     const [newCurrentPrice, setNewCurrentPrice] = useState(item.currentPrice.toString());
     const [isUpdating, setIsUpdating] = useState(false);
 
-    const costBasis = item.purchasePrice * item.quantity;
-    const marketValue = item.currentPrice * item.quantity;
-    const gainLoss = marketValue - costBasis;
+    const costBasis = multiplyMoney(item.purchasePrice, item.quantity);
+    const marketValue = multiplyMoney(item.currentPrice, item.quantity);
+    const gainLoss = subtractMoney(marketValue, costBasis);
     const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
     const gainLossColor = gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400';
     
@@ -157,9 +158,9 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
     const [showForm, setShowForm] = useState(false);
     
     const portfolioSummary = useMemo(() => {
-        const totalValue = investments.reduce((sum, inv) => sum + (inv.currentPrice * inv.quantity), 0);
-        const totalCost = investments.reduce((sum, inv) => sum + (inv.purchasePrice * inv.quantity), 0);
-        const totalGainLoss = totalValue - totalCost;
+        const totalValue = investments.reduce((sum, inv) => addMoney(sum, multiplyMoney(inv.currentPrice, inv.quantity)), 0);
+        const totalCost = investments.reduce((sum, inv) => addMoney(sum, multiplyMoney(inv.purchasePrice, inv.quantity)), 0);
+        const totalGainLoss = subtractMoney(totalValue, totalCost);
         const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
         return { totalValue, totalCost, totalGainLoss, totalGainLossPercent };
     }, [investments, currencySettings]);
@@ -167,7 +168,7 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
     const chartData = useMemo(() => {
         return investments.map(inv => ({
             name: inv.name,
-            value: inv.currentPrice * inv.quantity
+            value: multiplyMoney(inv.currentPrice, inv.quantity)
         })).filter(d => d.value > 0);
     }, [investments]);
 

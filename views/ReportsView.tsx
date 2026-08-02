@@ -1,7 +1,7 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { formatCurrency } from '../constants';
-import { GoogleGenAI } from "@google/genai";
+import { formatCurrency, parseLocalDate } from '../constants';
 import { AllTransaction, TransactionType, UserProfile } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -101,7 +101,7 @@ const CategoryBreakdownChart: React.FC<{
         const expenseData = data.filter(t => t.type === TransactionType.Expense || t.type === TransactionType.Shopping);
         const categoryMap: { [key: string]: number } = {};
         expenseData.forEach(item => {
-            categoryMap[item.category] = (categoryMap[item.category] || 0) + item.amount;
+            categoryMap[item.category] = addMoney(categoryMap[item.category] || 0, item.amount);
         });
         return Object.keys(categoryMap).map(key => ({ name: key, value: categoryMap[key] })).sort((a,b) => b.value - a.value);
     }, [data]);
@@ -255,7 +255,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ userProfile, allTransactions,
             const expenseCategories = report
                 .filter(t => t.type !== TransactionType.Income)
                 .reduce((acc, t) => {
-                    acc[t.category] = (acc[t.category] || 0) + t.amount;
+                    acc[t.category] = addMoney(acc[t.category] || 0, t.amount);
                     return acc;
                 }, {} as {[key: string]: number});
             
@@ -276,9 +276,14 @@ ${top5Expenses}
 
 Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tips should be practical and relevant to the data provided. For example, if food spending is high, suggest meal planning. If the net balance is negative, suggest reviewing specific spending categories. Do not use markdown formatting like headers or lists. Just provide a single paragraph of text.`;
 
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
-            setAiSummary(response.text);
+            const response = await fetch('/api/report-summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            setAiSummary(data.text);
         } catch (error) {
             console.error("AI Summary generation failed:", error);
             setAiSummary("Could not generate AI summary at this time.");
@@ -288,21 +293,21 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
     };
 
     const handleGenerateReport = () => {
-        const start = new Date(startDate); start.setHours(0, 0, 0, 0);
-        const end = new Date(endDate); end.setHours(23, 59, 59, 999);
+        const start = parseLocalDate(startDate); start.setHours(0, 0, 0, 0);
+        const end = parseLocalDate(endDate); end.setHours(23, 59, 59, 999);
 
         const filtered = allTransactions.filter(t => {
-            const tDate = new Date(t.date);
+            const tDate = parseLocalDate(t.date);
             return tDate >= start && tDate <= end && selectedTypes.includes(t.type) && (selectedCategories.length === 0 || selectedCategories.includes(t.category));
         });
 
         const newSummary = filtered.reduce((acc, t) => {
-            if (t.type === TransactionType.Income) acc.totalIncome += t.amount;
-            else acc.totalOutgoings += t.amount;
+            if (t.type === TransactionType.Income) acc.totalIncome = addMoney(acc.totalIncome, t.amount);
+            else acc.totalOutgoings = addMoney(acc.totalOutgoings, t.amount);
             return acc;
         }, { totalIncome: 0, totalOutgoings: 0 });
         
-        const fullSummary = { ...newSummary, netBalance: newSummary.totalIncome - newSummary.totalOutgoings, transactionCount: filtered.length };
+        const fullSummary = { ...newSummary, netBalance: subtractMoney(newSummary.totalIncome, newSummary.totalOutgoings), transactionCount: filtered.length };
 
         setGeneratedReport(filtered.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         setReportSummary(fullSummary);

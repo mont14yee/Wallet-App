@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo } from 'react';
 import { Loan, LoanType, Repayment, InterestType, RepaymentSchedule } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -40,20 +41,20 @@ const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => vo
 
         // If interest rate is not a valid positive number, calculate as a zero-interest loan.
         if (isNaN(annualRate) || annualRate <= 0) {
-            return p / months;
+            return divideMoney(p, months);
         }
 
         if (interestType === InterestType.Simple) {
             // Simple Interest: Total Repayable = Principal + (Principal * Rate * Years)
             // Monthly payment is Total Repayable / number of months.
             const years = months / 12;
-            const totalInterest = p * annualRate * years;
-            return (p + totalInterest) / months;
+            const totalInterest = multiplyMoney(p, annualRate * years);
+            return divideMoney(addMoney(p, totalInterest), months);
         }
         
         // Default to Compound Interest (standard EMI formula)
         const monthlyRate = annualRate / 12;
-        const emi = (p * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        const emi = divideMoney(multiplyMoney(p, monthlyRate * Math.pow(1 + monthlyRate, months)), Math.pow(1 + monthlyRate, months) - 1);
         return emi;
     };
 
@@ -181,7 +182,7 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
     const { t, currencySettings } = useLanguage();
     const isLent = loan.type === LoanType.Lent;
     const isOverdue = new Date(loan.dueDate) < new Date() && loan.outstandingAmount > 0;
-    const progress = loan.totalAmount > 0 ? ((loan.totalAmount - loan.outstandingAmount) / loan.totalAmount) * 100 : 0;
+    const progress = loan.totalAmount > 0 ? ((subtractMoney(loan.totalAmount, loan.outstandingAmount)) / loan.totalAmount) * 100 : 0;
     
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -212,7 +213,7 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
                             <div className={`h-2 rounded-full ${isLent ? 'bg-green-500' : 'bg-yellow-500'}`} style={{ width: `${progress}%` }}></div>
                         </div>
                         <div className="flex justify-between text-xs mt-1 text-gray-600 dark:text-gray-400">
-                             <span>{t('paid')}: {formatCurrency(loan.totalAmount - loan.outstandingAmount, currencySettings)}</span>
+                             <span>{t('paid')}: {formatCurrency(subtractMoney(loan.totalAmount, loan.outstandingAmount), currencySettings)}</span>
                              <span>{t('outstanding')}: {formatCurrency(loan.outstandingAmount, currencySettings)}</span>
                         </div>
                     </div>
@@ -269,8 +270,8 @@ const LoansView: React.FC<LoansViewProps> = ({ loans, addLoan, deleteLoan, addRe
         return {
             lentLoans: lent,
             borrowedLoans: borrowed,
-            totalLent: lent.reduce((sum, l) => sum + l.outstandingAmount, 0),
-            totalBorrowed: borrowed.reduce((sum, l) => sum + l.outstandingAmount, 0),
+            totalLent: lent.reduce((sum, l) => addMoney(sum, l.outstandingAmount), 0),
+            totalBorrowed: borrowed.reduce((sum, l) => addMoney(sum, l.outstandingAmount), 0),
         };
     }, [loans]);
     

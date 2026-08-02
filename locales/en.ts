@@ -392,4 +392,5 @@ export default {
     other: 'Other',
     portfolioAllocation: 'Portfolio Allocation',
     noInvestments: 'No investments found. Add one to get started!',
+    reports: 'Reports',
 };

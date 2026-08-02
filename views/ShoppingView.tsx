@@ -1,3 +1,4 @@
+import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatCurrency } from '../constants';
@@ -32,6 +33,81 @@ const ResultDisplay: React.FC<{ title: string; children: React.ReactNode; icon: 
 );
 
 
+const safeEvaluate = (expression: string): number => {
+    if (/[^0-9.+\-*/%()]/.test(expression)) {
+        throw new Error("Invalid characters in expression");
+    }
+
+    const tokens: string[] = [];
+    let num = '';
+    for (let i = 0; i < expression.length; i++) {
+        const char = expression[i];
+        if (/[0-9.]/.test(char)) {
+            num += char;
+        } else {
+            if (num) {
+                tokens.push(num);
+                num = '';
+            }
+            if (/[+\-*/%()]/.test(char)) {
+                tokens.push(char);
+            }
+        }
+    }
+    if (num) tokens.push(num);
+
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const consume = () => tokens[pos++];
+    
+    const parsePrimary = (): number => {
+        const token = consume();
+        if (!token) throw new Error("Unexpected end of expression");
+        if (token === '-') return -parsePrimary();
+        if (token === '+') return parsePrimary();
+        if (token === '(') {
+            const val = parseExpression();
+            if (consume() !== ')') throw new Error("Expected )");
+            if (peek() === '%') {
+                consume();
+                return val / 100;
+            }
+            return val;
+        }
+        let val = parseFloat(token);
+        if (peek() === '%') {
+            consume();
+            val = val / 100;
+        }
+        return val;
+    };
+
+    const parseFactor = (): number => {
+        let val = parsePrimary();
+        while (peek() === '*' || peek() === '/') {
+            const op = consume();
+            const right = parsePrimary();
+            if (op === '*') val *= right;
+            else if (op === '/') val /= right;
+        }
+        return val;
+    };
+
+    const parseExpression = (): number => {
+        let val = parseFactor();
+        while (peek() === '+' || peek() === '-') {
+            const op = consume();
+            const right = parseFactor();
+            if (op === '+') val += right;
+            else if (op === '-') val -= right;
+        }
+        return val;
+    };
+
+    return parseExpression();
+};
+
+
 // --- Sub-components for each calculator ---
 const SimpleCalculator = () => {
     const [display, setDisplay] = useState('0');
@@ -40,12 +116,9 @@ const SimpleCalculator = () => {
         else if (value === '<') setDisplay(d => d.length > 1 ? d.slice(0, -1) : '0');
         else if (value === '=') {
             try {
-                // Sanitize to prevent security issues with eval
+                // Sanitize to prevent security issues and use safe evaluator
                 const sanitized = display.replace(/[^-()\d/*+.%]/g, '');
-                // Handle percentage
-                const finalExpression = sanitized.replace(/(\d+)%/g, '($1/100)');
-                // eslint-disable-next-line no-eval
-                const result = eval(finalExpression);
+                const result = safeEvaluate(sanitized);
                 setDisplay(String(result));
             } catch { setDisplay('Error'); }
         } else if (value === '00') {
@@ -145,9 +218,9 @@ const LoanCalculator = () => {
     const calculate = () => {
         const p = parseFloat(amount), r = parseFloat(rate) / 100 / 12, n = parseFloat(term) * 12;
         if (p > 0 && r > 0 && n > 0) {
-            const m = p * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-            const total = m * n;
-            setResult({ monthly: m, total, interest: total - p });
+            const m = divideMoney(multiplyMoney(p, r * Math.pow(1 + r, n)), Math.pow(1 + r, n) - 1);
+            const total = multiplyMoney(m, n);
+            setResult({ monthly: m, total, interest: subtractMoney(total, p) });
         }
     };
     return (
@@ -178,7 +251,7 @@ const FuelCalculator = () => {
         const d = parseFloat(dist), e = parseFloat(eff), p = parseFloat(price);
         if (d > 0 && e > 0 && p > 0) {
             const fuelNeeded = (d / 100) * e;
-            setResult({ fuel: fuelNeeded, cost: fuelNeeded * p });
+            setResult({ fuel: fuelNeeded, cost: multiplyMoney(fuelNeeded, p) });
         }
     };
     return (
@@ -202,8 +275,8 @@ const DiscountCalculator = () => {
     const calculate = () => {
         const p = parseFloat(price), d = parseFloat(discount);
         if (p > 0 && d >= 0) {
-            const saved = p * (d / 100);
-            setResult({ saved, final: p - saved });
+            const saved = multiplyMoney(p, d / 100);
+            setResult({ saved, final: subtractMoney(p, saved) });
         }
     };
     return (
@@ -226,8 +299,8 @@ const SalesTaxCalculator = () => {
     const calculate = () => {
         const p = parseFloat(price), tx = parseFloat(tax);
         if (p > 0 && tx >= 0) {
-            const taxAmount = p * (tx / 100);
-            setResult({ taxAmount, final: p + taxAmount });
+            const taxAmount = multiplyMoney(p, tx / 100);
+            setResult({ taxAmount, final: addMoney(p, taxAmount) });
         }
     };
     return (
