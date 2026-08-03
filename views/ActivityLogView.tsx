@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-// FIX: Removed 'Shopping' from import as it is not a type.
 import { AllTransaction, Transaction, TransactionType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatCurrency } from '../constants';

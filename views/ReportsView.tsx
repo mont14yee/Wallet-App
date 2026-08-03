@@ -1,7 +1,7 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { generateId, formatCurrency, parseLocalDate } from '../constants';
 import { AllTransaction, TransactionType, UserProfile } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -321,7 +321,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
             return;
         }
         const newReport: SavedReport = {
-            id: Date.now(),
+            id: generateId(),
             name: newReportName.trim(),
             filters: {
                 startDate,
@@ -456,7 +456,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Expense Breakdown</h4>
                                  <CategoryBreakdownChart 
                                     data={generatedReport} 
-                                    theme={language === 'dark' ? 'dark' : 'light'}
+                                    theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
                                     onCategoryClick={handlePieClick}
                                     activeCategory={categoryFilter}
                                  />

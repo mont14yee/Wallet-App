@@ -1,21 +1,21 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from './utils/money';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ViewType, Transaction, SavingsGoal, TransactionType, AllTransaction, UserProfile, FeatureType, Loan, LoanType, Repayment, ExtraContribution, Subscription, ScheduledTransaction, Investment } from './types';
-import { INITIAL_INCOME, INITIAL_EXPENSES, INITIAL_SAVINGS_GOALS, getIncomeCategories, getAllExpenseCategories, getShoppingCategories, INITIAL_LOANS, INITIAL_SUBSCRIPTIONS, INITIAL_SCHEDULED_TRANSACTIONS, INITIAL_INVESTMENTS } from './constants';
+import { generateId, INITIAL_INCOME, INITIAL_EXPENSES, INITIAL_SAVINGS_GOALS, getIncomeCategories, getAllExpenseCategories, getShoppingCategories, INITIAL_LOANS, INITIAL_SUBSCRIPTIONS, INITIAL_SCHEDULED_TRANSACTIONS, INITIAL_INVESTMENTS } from './constants';
 import Header from './components/Header';
 import FooterNav from './components/FooterNav';
 import DashboardView from './views/DashboardView';
 import IncomeView from './views/IncomeView';
 import ExpensesView from './views/ExpensesView';
-import SavingsView from './views/TargetsView';
-import MoreView from './views/CalculatorView';
+import SavingsView from './views/SavingsView';
+import MoreView from './views/MoreView';
 import Chatbot from './components/Chatbot';
 import { useLanguage } from './contexts/LanguageContext';
 import ReportsView from './views/ReportsView';
-import Calculator from './views/ShoppingView';
+import CalculatorView from './views/CalculatorView';
 import CurrencyConverter from './views/CurrencyConverterView';
-import NutritionView from './components/SettingsModal';
-import SettingsAndAboutView from './components/charts/ExpenseChart';
+import NutritionView from './components/NutritionView';
+import SettingsAndAboutView from './components/charts/SettingsAndAboutView';
 import LoansView from './views/LoansView';
 import SubscriptionsView from './views/SubscriptionsView';
 import ActivityLogView from './views/ActivityLogView';
@@ -285,7 +285,7 @@ const App: React.FC = () => {
     };
 
     const addTransaction = useCallback((type: TransactionType, item: Omit<Transaction, 'id'>) => {
-        const newItem = { ...item, id: Date.now() };
+        const newItem = { ...item, id: generateId() };
         if (type === TransactionType.Income) {
             setIncome(prev => [newItem, ...prev]);
         } else if (type === TransactionType.Expense) {
@@ -302,7 +302,7 @@ const App: React.FC = () => {
     }, []);
 
     const addSavingsGoal = useCallback((item: Omit<SavingsGoal, 'id' | 'extraContributions'>) => {
-        const newItem = { ...item, id: Date.now(), extraContributions: [] };
+        const newItem = { ...item, id: generateId(), extraContributions: [] };
         setSavingsGoals(prev => [newItem, ...prev]);
     }, []);
 
@@ -316,7 +316,7 @@ const App: React.FC = () => {
                 if (goal.id === goalId) {
                     return {
                         ...goal,
-                        extraContributions: [{ ...contribution, id: Date.now() }, ...goal.extraContributions],
+                        extraContributions: [{ ...contribution, id: generateId() }, ...goal.extraContributions],
                     };
                 }
                 return goal;
@@ -333,7 +333,7 @@ const App: React.FC = () => {
     const addLoan = useCallback((item: Omit<Loan, 'id' | 'repayments' | 'outstandingAmount'>) => {
         const newItem: Loan = { 
             ...item, 
-            id: Date.now(), 
+            id: generateId(), 
             repayments: [], 
             outstandingAmount: item.totalAmount 
         };
@@ -350,7 +350,7 @@ const App: React.FC = () => {
             prevLoans.map(loan => {
                 if (loan.id === loanId) {
                     targetLoan = loan;
-                    const newRepayment = { ...repayment, id: Date.now() };
+                    const newRepayment = { ...repayment, id: generateId() };
                     return {
                         ...loan,
                         outstandingAmount: Math.max(0, subtractMoney(loan.outstandingAmount, repayment.amount)),
@@ -381,7 +381,7 @@ const App: React.FC = () => {
     }, [addTransaction, t]);
 
     const addSubscription = useCallback((item: Omit<Subscription, 'id'>) => {
-        const newItem = { ...item, id: Date.now() };
+        const newItem = { ...item, id: generateId() };
         setSubscriptions(prev => [newItem, ...prev]);
     }, []);
 
@@ -394,7 +394,7 @@ const App: React.FC = () => {
     }, []);
 
     const addScheduledTransaction = useCallback((item: Omit<ScheduledTransaction, 'id'>) => {
-        const newItem = { ...item, id: Date.now() };
+        const newItem = { ...item, id: generateId() };
         setScheduledTransactions(prev => [newItem, ...prev]);
     }, []);
 
@@ -407,7 +407,7 @@ const App: React.FC = () => {
     }, []);
     
     const addInvestment = useCallback((item: Omit<Investment, 'id'>) => {
-        const newItem = { ...item, id: Date.now() };
+        const newItem = { ...item, id: generateId() };
         setInvestments(prev => [newItem, ...prev]);
     }, []);
 
@@ -615,7 +615,7 @@ const App: React.FC = () => {
                 </FullScreenContainer>;
             case FeatureType.Calculator:
                 return <FullScreenContainer title={t('calculator')} icon="fas fa-calculator">
-                    <div className="p-4 sm:p-6 h-full"><Calculator /></div>
+                    <div className="p-4 sm:p-6 h-full"><CalculatorView /></div>
                 </FullScreenContainer>;
             case FeatureType.Converter:
                  return <FullScreenContainer title={t('converter')} icon="fas fa-exchange-alt">

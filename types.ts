@@ -127,7 +127,6 @@ export interface Investment {
     notes?: string;
 }
 
-// FIX: Added 'None' and 'Biweekly' to Frequency enum for HarvestHavenView.
 export enum Frequency {
     None = 'none',
     Weekly = 'weekly',

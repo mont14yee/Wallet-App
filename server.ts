@@ -116,25 +116,6 @@ async function startServer() {
     }
   });
 
-  app.post("/api/convert-currency", async (req, res) => {
-    try {
-      const { fromCurrency, toCurrency } = req.body;
-      const prompt = `What is the current exchange rate for 1 ${fromCurrency} to ${toCurrency}? Please provide only the numerical value of the conversion rate, nothing else. For example: 0.017`;
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          tools: [{ googleSearch: {} }],
-        },
-      });
-      res.json({ text: response.text });
-    } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
-    }
-  });
-
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

@@ -1,3 +1,4 @@
+import { generateId } from '../constants';
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -24,7 +25,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
         if (isOpen) {
             setMessages([
                 {
-                    id: Date.now(),
+                    id: generateId(),
                     text: t('chatbotWelcome'),
                     sender: 'bot'
                 }
@@ -46,7 +47,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
-        const userMessage: Message = { id: Date.now(), text: input, sender: 'user' };
+        const userMessage: Message = { id: generateId(), text: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
@@ -60,12 +61,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
             });
             if (!response.ok) throw new Error('API Error');
             const data = await response.json();
-            const botMessage: Message = { id: Date.now() + 1, text: data.text, sender: 'bot' };
+            const botMessage: Message = { id: generateId(), text: data.text, sender: 'bot' };
             setMessages(prev => [...prev, botMessage]);
         } catch (err) {
             console.error("Gemini API error:", err);
             setError(t('chatbotErrorApi'));
-            const errorMessage: Message = { id: Date.now() + 1, text: t('chatbotErrorApi'), sender: 'bot' };
+            const errorMessage: Message = { id: generateId(), text: t('chatbotErrorApi'), sender: 'bot' };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);

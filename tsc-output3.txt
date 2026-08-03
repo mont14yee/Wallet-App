@@ -1,0 +1,34 @@
+components/charts/CategoryChart.tsx(24,9): error TS2657: JSX expressions must have one parent element.
+components/charts/CategoryChart.tsx(25,68): error TS1005: '}' expected.
+components/charts/CategoryChart.tsx(25,86): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(25,87): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(25,88): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/charts/CategoryChart.tsx(27,13): error TS17002: Expected corresponding JSX closing tag for 'div'.
+components/charts/CategoryChart.tsx(36,9): error TS1005: ')' expected.
+components/charts/CategoryChart.tsx(37,7): error TS1109: Expression expected.
+components/charts/CategoryChart.tsx(38,5): error TS1128: Declaration or statement expected.
+components/charts/CategoryChart.tsx(40,1): error TS1128: Declaration or statement expected.
+components/charts/CategoryChart.tsx(108,27): error TS1005: '}' expected.
+components/charts/CategoryChart.tsx(108,29): error TS1003: Identifier expected.
+components/charts/CategoryChart.tsx(108,43): error TS1005: ';' expected.
+components/charts/CategoryChart.tsx(108,50): error TS1128: Declaration or statement expected.
+components/charts/CategoryChart.tsx(108,51): error TS1109: Expression expected.
+components/charts/CategoryChart.tsx(133,39): error TS1005: '}' expected.
+components/charts/CategoryChart.tsx(133,78): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(133,79): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(134,21): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/charts/CategoryChart.tsx(141,51): error TS1005: '}' expected.
+components/charts/CategoryChart.tsx(141,80): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(141,81): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(143,30): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/charts/CategoryChart.tsx(144,27): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(145,23): error TS17002: Expected corresponding JSX closing tag for 'PieChart'.
+components/charts/CategoryChart.tsx(147,49): error TS1005: '}' expected.
+components/charts/CategoryChart.tsx(147,80): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(147,81): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/charts/CategoryChart.tsx(147,84): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/charts/CategoryChart.tsx(148,19): error TS17002: Expected corresponding JSX closing tag for 'ResponsiveContainer'.
+components/charts/CategoryChart.tsx(149,13): error TS1128: Declaration or statement expected.
+components/charts/CategoryChart.tsx(150,9): error TS1109: Expression expected.
+components/charts/CategoryChart.tsx(151,5): error TS1109: Expression expected.
+components/charts/CategoryChart.tsx(152,1): error TS1128: Declaration or statement expected.

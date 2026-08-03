@@ -78,3 +78,8 @@ export const formatLocalDate = (d: Date): string => {
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
 };
+
+let _idCounter = Date.now();
+export const generateId = (): number => {
+    return _idCounter++;
+};

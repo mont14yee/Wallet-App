@@ -98,7 +98,7 @@ const GrowthChart: React.FC<{ goal: SavingsGoal; projection: any[], theme: 'ligh
                     <YAxis tick={{ fill: theme === 'dark' ? '#a0aec0' : '#4a5568' }} fontSize={10} domain={['dataMin', goal.targetAmount * 1.1]}/>
                     <Tooltip />
                     <Line type="monotone" dataKey="balance" name={t('balance')} stroke="#22c55e" strokeWidth={2} dot={false} />
-                    {milestones.map((m, i) => m && <ReferenceDot key={i} x={m.date} y={m.balance} r={5} fill="#fbbf24" stroke="white" isFront={true} />)}
+                    {milestones.map((m, i) => m && <ReferenceDot key={i} x={m.date} y={m.balance} r={5} fill="#fbbf24" stroke="white" />)}
                 </LineChart>
             </ResponsiveContainer>
         </div>

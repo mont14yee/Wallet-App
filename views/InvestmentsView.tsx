@@ -206,7 +206,7 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
                                 <Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="value" nameKey="name">
                                     {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                 </Pie>
-                                <Tooltip formatter={(value: number) => formatCurrency(value, currencySettings)}/>
+                                <Tooltip formatter={(value: any) => formatCurrency(value, currencySettings)}/>
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>

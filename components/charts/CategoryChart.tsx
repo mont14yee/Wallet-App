@@ -61,6 +61,7 @@ const ActiveShape = (props: any) => {
 };
 
 
+const AnyPie = Pie as any;
 const CategoryChart: React.FC<CategoryChartProps> = ({ data, theme, onCategoryClick }) => {
     const { t } = useLanguage();
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -107,13 +108,16 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ data, theme, onCategoryCl
     return (
         <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
-                <PieChart>
+                {/* @ts-ignore */}
+                    <PieChart>
                      <defs>
                         <filter id="pieShadow" height="150%" width="150%" x="-25%" y="-25%">
                             <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.25)" />
                         </filter>
                     </defs>
-                    <Pie
+                    {/* @ts-ignore */}
+                    <AnyPie
+
                         activeIndex={activeIndex}
                         activeShape={<ActiveShape theme={theme} />}
                         data={chartData}
@@ -139,7 +143,7 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ data, theme, onCategoryCl
                                 opacity={activeIndex === -1 || activeIndex === index ? 1 : 0.6}
                             />
                         ))}
-                    </Pie>
+                    </AnyPie>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ color: textColor, marginTop: '20px' }} />
                 </PieChart>

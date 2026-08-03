@@ -20,6 +20,8 @@ const SubscriptionCard: React.FC<{ sub: Subscription, onUpdate: (sub: Subscripti
     const [isFlipped, setIsFlipped] = useState(false);
 
     const frequencyMap = {
+        [Frequency.None]: t('none') || 'None', 
+        [Frequency.Biweekly]: t('biweekly') || 'Bi-weekly',
         [Frequency.Weekly]: t('weekly'),
         [Frequency.Monthly]: t('monthly'),
         [Frequency.Yearly]: t('yearly'),

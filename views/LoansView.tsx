@@ -230,8 +230,8 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
             {isExpanded && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 animate-fadeIn text-sm">
                     <div className="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300">
-                        <p><strong>{t('interest')}:</strong> {loan.interestRate}% {loan.interestRate > 0 ? `(${t(loan.interestType)})` : ''}</p>
-                        <p><strong>{t('schedule')}:</strong> {t(loan.repaymentSchedule)}</p>
+                        <p><strong>{t('interest')}:</strong> {loan.interestRate}% {loan.interestRate > 0 ? `(${t(loan.interestType as any)})` : ''}</p>
+                        <p><strong>{t('schedule')}:</strong> {t(loan.repaymentSchedule as any)}</p>
                         <p><strong>{t('loanDate')}:</strong> {loan.date}</p>
                         {loan.notes && <p className="col-span-2"><strong>{t('notes')}:</strong> {loan.notes}</p>}
                     </div>
