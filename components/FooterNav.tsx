@@ -10,8 +10,8 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
     { id: ViewType.Dashboard, icon: 'fas fa-home', labelKey: 'home' },
-    { id: ViewType.Expenses, icon: 'fas fa-credit-card', labelKey: 'expenses' },
     { id: ViewType.Income, icon: 'fas fa-wallet', labelKey: 'income' },
+    { id: ViewType.Expenses, icon: 'fas fa-credit-card', labelKey: 'expenses' },
     { id: ViewType.Investments, icon: 'fas fa-chart-line', labelKey: 'invest' },
     { id: ViewType.More, icon: 'fas fa-chart-pie', labelKey: 'more' },
 ];

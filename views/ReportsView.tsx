@@ -7,7 +7,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface ReportsViewProps {
-    userProfile: UserProfile;
+    userProfile: UserProfile | null;
     allTransactions: AllTransaction[];
     incomeCategories: string[];
     expenseCategories: string[];
@@ -207,7 +207,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ userProfile, allTransactions,
     const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
     const [showSaveForm, setShowSaveForm] = useState(false);
     const [newReportName, setNewReportName] = useState('');
-    const userKey = userProfile.email;
+    const userKey = userProfile?.email;
 
     useEffect(() => {
         if (!userKey) return;

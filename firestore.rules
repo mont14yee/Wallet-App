@@ -1,0 +1,133 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return request.auth.token.email_verified == true; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['name', 'amount', 'date', 'category']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.amount is number &&
+             data.date is string && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.category is string && data.category.size() <= 50 &&
+             (!('id' in data) || data.id is number) &&
+             (!('mood' in data) || (data.mood is string && data.mood.size() <= 50));
+    }
+
+    function isValidSavingsGoal(data) {
+      return data.keys().hasAll(['name', 'targetAmount', 'deadline', 'startingBalance', 'monthlyContribution', 'interestRate', 'compoundingFrequency']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.targetAmount is number &&
+             data.deadline is string && data.deadline.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.startingBalance is number &&
+             data.monthlyContribution is number &&
+             data.interestRate is number &&
+             data.compoundingFrequency is string && data.compoundingFrequency in ['daily', 'monthly', 'yearly'] &&
+             (!('id' in data) || data.id is number) &&
+             (!('extraContributions' in data) || (data.extraContributions is list && data.extraContributions.size() <= 1000));
+    }
+
+    function isValidLoan(data) {
+      return data.keys().hasAll(['type', 'person', 'totalAmount', 'outstandingAmount', 'interestRate', 'interestType', 'date', 'dueDate', 'repaymentSchedule']) &&
+             data.type is string && data.type in ['lent', 'borrowed'] &&
+             data.person is string && data.person.size() <= 100 &&
+             data.totalAmount is number &&
+             data.outstandingAmount is number &&
+             data.interestRate is number &&
+             data.interestType is string && data.interestType in ['simple', 'compound'] &&
+             data.date is string && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.dueDate is string && data.dueDate.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.repaymentSchedule is string && data.repaymentSchedule in ['one-time', 'monthly'] &&
+             (!('id' in data) || data.id is number) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (!('repayments' in data) || (data.repayments is list && data.repayments.size() <= 1000));
+    }
+
+    function isValidSubscription(data) {
+      return data.keys().hasAll(['name', 'type', 'amount', 'frequency', 'renewalDate', 'category', 'health']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.type is string && data.type in ['expense', 'income'] &&
+             data.amount is number &&
+             data.frequency is string && data.frequency in ['none', 'weekly', 'biweekly', 'monthly', 'yearly'] &&
+             data.renewalDate is string && data.renewalDate.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.category is string && data.category.size() <= 50 &&
+             data.health is string && data.health in ['good', 'review'] &&
+             (!('id' in data) || data.id is number) &&
+             (!('cancellationUrl' in data) || (data.cancellationUrl is string && data.cancellationUrl.size() <= 500)) &&
+             (!('isVariable' in data) || data.isVariable is bool);
+    }
+
+    function isValidScheduledTransaction(data) {
+      return data.keys().hasAll(['name', 'amount', 'category', 'type', 'frequency', 'startDate', 'nextDueDate']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.amount is number &&
+             data.category is string && data.category.size() <= 50 &&
+             data.type is string && data.type in ['income', 'expense', 'shopping'] &&
+             data.frequency is string && data.frequency in ['none', 'weekly', 'biweekly', 'monthly', 'yearly'] &&
+             data.startDate is string && data.startDate.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.nextDueDate is string && data.nextDueDate.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             (!('id' in data) || data.id is number) &&
+             (!('endDate' in data) || (data.endDate is string && data.endDate.matches('^\\d{4}-\\d{2}-\\d{2}$'))) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (!('variance' in data) || data.variance is number);
+    }
+
+    function isValidInvestment(data) {
+      return data.keys().hasAll(['name', 'type', 'quantity', 'purchasePrice', 'purchaseDate', 'currentPrice']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.type is string && data.type in ['Stock', 'ETF', 'Crypto', 'Mutual Fund', 'Other'] &&
+             data.quantity is number &&
+             data.purchasePrice is number &&
+             data.purchaseDate is string && data.purchaseDate.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             data.currentPrice is number &&
+             (!('id' in data) || data.id is number) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000));
+    }
+
+    match /users/{userId} {
+      match /income/{transactionId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidTransaction(incoming()) && incoming().keys().hasOnly(['name', 'amount', 'date', 'category', 'id', 'mood']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidTransaction(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'amount', 'date', 'category', 'id', 'mood']);
+      }
+      match /expenses/{transactionId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidTransaction(incoming()) && incoming().keys().hasOnly(['name', 'amount', 'date', 'category', 'id', 'mood']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidTransaction(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'amount', 'date', 'category', 'id', 'mood']);
+      }
+      match /savingsGoals/{goalId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidSavingsGoal(incoming()) && incoming().keys().hasOnly(['name', 'targetAmount', 'deadline', 'startingBalance', 'monthlyContribution', 'interestRate', 'compoundingFrequency', 'id', 'extraContributions']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidSavingsGoal(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'targetAmount', 'deadline', 'startingBalance', 'monthlyContribution', 'interestRate', 'compoundingFrequency', 'id', 'extraContributions']);
+      }
+      match /loans/{loanId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidLoan(incoming()) && incoming().keys().hasOnly(['type', 'person', 'totalAmount', 'outstandingAmount', 'interestRate', 'interestType', 'date', 'dueDate', 'repaymentSchedule', 'id', 'notes', 'repayments']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidLoan(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['type', 'person', 'totalAmount', 'outstandingAmount', 'interestRate', 'interestType', 'date', 'dueDate', 'repaymentSchedule', 'id', 'notes', 'repayments']);
+      }
+      match /subscriptions/{subscriptionId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidSubscription(incoming()) && incoming().keys().hasOnly(['name', 'type', 'amount', 'frequency', 'renewalDate', 'category', 'health', 'id', 'cancellationUrl', 'isVariable']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidSubscription(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'type', 'amount', 'frequency', 'renewalDate', 'category', 'health', 'id', 'cancellationUrl', 'isVariable']);
+      }
+      match /scheduledTransactions/{scheduledId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidScheduledTransaction(incoming()) && incoming().keys().hasOnly(['name', 'amount', 'category', 'type', 'frequency', 'startDate', 'nextDueDate', 'id', 'endDate', 'notes', 'variance']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidScheduledTransaction(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'amount', 'category', 'type', 'frequency', 'startDate', 'nextDueDate', 'id', 'endDate', 'notes', 'variance']);
+      }
+      match /investments/{investmentId} {
+        allow read, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+        allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidInvestment(incoming()) && incoming().keys().hasOnly(['name', 'type', 'quantity', 'purchasePrice', 'purchaseDate', 'currentPrice', 'id', 'notes']);
+        allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidInvestment(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'type', 'quantity', 'purchasePrice', 'purchaseDate', 'currentPrice', 'id', 'notes']);
+      }
+    }
+  }
+}

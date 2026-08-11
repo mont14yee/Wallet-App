@@ -221,9 +221,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
     return (
         <ViewContainer title={t('dashboard')} icon="fas fa-chart-line">
             {/* Main Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <StatCard title={t('totalIncome')} amount={income} icon="fas fa-arrow-up" color="#10b981" borderColor="border-emerald-500" />
-                <StatCard title={t('totalExpenses')} amount={expenses} icon="fas fa-arrow-down" color="#f43f5e" borderColor="border-rose-500" />
+            <div className="mb-8 max-w-sm">
                 <StatCard title={t('netAmount')} amount={netAmount} icon="fas fa-balance-scale" color="#2196f3" borderColor="border-blue-500" />
             </div>
 

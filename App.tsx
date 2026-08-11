@@ -23,28 +23,14 @@ import ScheduledView from './views/ScheduledView';
 import CalendarView from './views/CalendarView';
 import InvestmentsView from './views/InvestmentsView';
 
+import { auth, db } from './firebaseConfig';
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, query } from 'firebase/firestore';
+import { handleFirestoreError, OperationType } from './firebaseError';
 
-const loadUserDataFor = (email: string) => {
-    const load = <T,>(key: string, fallback: T): T => {
-        if (!email) return fallback;
-        try {
-            const saved = localStorage.getItem(`${key}-${email}`);
-            return saved ? JSON.parse(saved) : fallback;
-        } catch (error) {
-            console.error(`Failed to load ${key} from localStorage for ${email}`, error);
-            return fallback;
-        }
-    };
-    return {
-        income: load<Transaction[]>('wallet-income', INITIAL_INCOME),
-        expenses: load<Transaction[]>('wallet-expenses', INITIAL_EXPENSES),
-        savingsGoals: load<SavingsGoal[]>('wallet-savings', INITIAL_SAVINGS_GOALS),
-        loans: load<Loan[]>('wallet-loans', INITIAL_LOANS),
-        subscriptions: load<Subscription[]>('wallet-subscriptions', INITIAL_SUBSCRIPTIONS),
-        scheduled: load<ScheduledTransaction[]>('wallet-scheduled', INITIAL_SCHEDULED_TRANSACTIONS),
-        investments: load<Investment[]>('wallet-investments', INITIAL_INVESTMENTS),
-    };
-};
+
+
+
 
 
 const App: React.FC = () => {
@@ -53,23 +39,18 @@ const App: React.FC = () => {
     const [activeFeature, setActiveFeature] = useState<FeatureType | null>(null);
     const [featureOrigin, setFeatureOrigin] = useState<{x: number, y: number} | null>(null);
     
-    const [userProfile, setUserProfileState] = useState<UserProfile>(() => {
-        try {
-            const savedProfile = localStorage.getItem('wallet-user-profile');
-            return savedProfile ? JSON.parse(savedProfile) : { name: 'Guest User', email: 'guest@example.com', avatar: undefined };
-        } catch (error) {
-            console.error("Failed to load user profile from localStorage", error);
-            return { name: 'Guest User', email: 'guest@example.com', avatar: undefined };
-        }
-    });
+    
+    const [userProfile, setUserProfileState] = useState<UserProfile | null>(null);
+    const [authReady, setAuthReady] = useState(false);
+    const [loginError, setLoginError] = useState<string | null>(null);
 
-    const [income, setIncome] = useState<Transaction[]>(() => loadUserDataFor(userProfile.email).income);
-    const [expenses, setExpenses] = useState<Transaction[]>(() => loadUserDataFor(userProfile.email).expenses);
-    const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(() => loadUserDataFor(userProfile.email).savingsGoals);
-    const [loans, setLoans] = useState<Loan[]>(() => loadUserDataFor(userProfile.email).loans);
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => loadUserDataFor(userProfile.email).subscriptions);
-    const [scheduledTransactions, setScheduledTransactions] = useState<ScheduledTransaction[]>(() => loadUserDataFor(userProfile.email).scheduled);
-    const [investments, setInvestments] = useState<Investment[]>(() => loadUserDataFor(userProfile.email).investments);
+    const [income, setIncome] = useState<Transaction[]>([]);
+    const [expenses, setExpenses] = useState<Transaction[]>([]);
+    const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+    const [loans, setLoans] = useState<Loan[]>([]);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [scheduledTransactions, setScheduledTransactions] = useState<ScheduledTransaction[]>([]);
+    const [investments, setInvestments] = useState<Investment[]>([]);
 
 
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -79,56 +60,92 @@ const App: React.FC = () => {
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [isChatbotOpen, setChatbotOpen] = useState(false);
 
-    const setUserProfile = (profile: UserProfile) => {
-        const oldEmail = userProfile.email;
-        try {
-            localStorage.setItem('wallet-user-profile', JSON.stringify(profile));
-        } catch (error) {
-            console.error("Failed to save user profile to localStorage", error);
-        }
-        
-        setUserProfileState(profile);
 
-        if (profile.email !== oldEmail) {
-            // If the user is logging in from a guest session, merge the data.
-            if (oldEmail === 'guest@example.com' && profile.email !== 'guest@example.com') {
-                const guestData = loadUserDataFor(oldEmail);
-                const userData = loadUserDataFor(profile.email);
+    useEffect(() => {
+        let snapshotUnsubscribes: (() => void)[] = [];
 
-                const mergeAndDeduplicate = <T extends { id: number }>(userArr: T[], guestArr: T[]): T[] => {
-                    const combined = [...userArr, ...guestArr];
-                    const map = new Map(combined.map(item => [item.id, item]));
-                    return Array.from(map.values());
-                };
+        const cleanupSnapshots = () => {
+            snapshotUnsubscribes.forEach(unsub => unsub());
+            snapshotUnsubscribes = [];
+        };
 
-                setIncome(mergeAndDeduplicate(userData.income, guestData.income));
-                setExpenses(mergeAndDeduplicate(userData.expenses, guestData.expenses));
-                setSavingsGoals(mergeAndDeduplicate(userData.savingsGoals, guestData.savingsGoals));
-                setLoans(mergeAndDeduplicate(userData.loans, guestData.loans));
-                setSubscriptions(mergeAndDeduplicate(userData.subscriptions, guestData.subscriptions));
-                setScheduledTransactions(mergeAndDeduplicate(userData.scheduled, guestData.scheduled));
-                setInvestments(mergeAndDeduplicate(userData.investments, guestData.investments));
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            cleanupSnapshots();
 
-                // Clean up guest data after merging
-                const keysToClear = ['income', 'expenses', 'savings', 'loans', 'subscriptions', 'scheduled', 'investments'];
-                keysToClear.forEach(key => {
-                    localStorage.removeItem(`wallet-${key}-${oldEmail}`);
+            if (user) {
+                setUserProfileState({
+                    name: user.displayName || 'User',
+                    email: user.email || '',
+                    avatar: user.photoURL || undefined
                 });
-
+                
+                // Fetch data
+                const cols = [
+                    { path: 'income', setter: setIncome },
+                    { path: 'expenses', setter: setExpenses },
+                    { path: 'savingsGoals', setter: setSavingsGoals },
+                    { path: 'loans', setter: setLoans },
+                    { path: 'subscriptions', setter: setSubscriptions },
+                    { path: 'scheduledTransactions', setter: setScheduledTransactions },
+                    { path: 'investments', setter: setInvestments }
+                ];
+                
+                snapshotUnsubscribes = cols.map(({path, setter}) => {
+                    return onSnapshot(collection(db, 'users', user.uid, path), (snapshot) => {
+                        const items: any[] = [];
+                        snapshot.forEach((doc) => items.push({ ...doc.data(), id: Number(doc.id) }));
+                        setter(items as any);
+                    }, (error) => {
+                        handleFirestoreError(error, OperationType.GET, `users/${user.uid}/${path}`);
+                    });
+                });
+                
+                setAuthReady(true);
             } else {
-                // Otherwise, just load the new user's data (handles logout to guest or user switching)
-                const { income, expenses, savingsGoals, loans, subscriptions, scheduled, investments } = loadUserDataFor(profile.email);
-                setIncome(income);
-                setExpenses(expenses);
-                setSavingsGoals(savingsGoals);
-                setLoans(loans);
-                setSubscriptions(subscriptions);
-                setScheduledTransactions(scheduled);
-                setInvestments(investments);
+                setUserProfileState(null);
+                setIncome([]);
+                setExpenses([]);
+                setSavingsGoals([]);
+                setLoans([]);
+                setSubscriptions([]);
+                setScheduledTransactions([]);
+                setInvestments([]);
+                setAuthReady(true);
+            }
+        });
+        
+        return () => {
+            cleanupSnapshots();
+            unsubscribe();
+        };
+    }, []);
+
+    const login = async () => {
+        const provider = new GoogleAuthProvider();
+        setLoginError(null);
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error: any) {
+            console.error("Login failed", error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                setLoginError("Sign-in popup was closed before completing. Please try again.");
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                setLoginError("Multiple popup requests were cancelled. Please try again.");
+            } else if (error.code === 'auth/popup-blocked') {
+                setLoginError("Sign-in popup was blocked by your browser. Please allow popups for this site.");
+            } else {
+                setLoginError("Login failed: " + (error.message || "Unknown error"));
             }
         }
     };
 
+    const logout = async () => {
+        await signOut(auth);
+    };
+
+    const setUserProfile = (profile: UserProfile) => {
+        // Mock to avoid breaking props passed down
+    };
     const [incomeCategories, setIncomeCategories] = useState<string[]>(getIncomeCategories(language));
     const [allExpenseCategories, setAllExpenseCategories] = useState<string[]>(getAllExpenseCategories(language));
     const [shoppingCategories, setShoppingCategories] = useState<string[]>(getShoppingCategories(language));
@@ -139,68 +156,12 @@ const App: React.FC = () => {
         setShoppingCategories(getShoppingCategories(language));
     }, [language]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-income-${userProfile.email}`, JSON.stringify(income));
-        } catch (error) {
-            console.error("Failed to save income to localStorage", error);
-        }
-    }, [income, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-expenses-${userProfile.email}`, JSON.stringify(expenses));
-        } catch (error) {
-            console.error("Failed to save expenses to localStorage", error);
-        }
-    }, [expenses, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-savings-${userProfile.email}`, JSON.stringify(savingsGoals));
-        } catch (error) {
-            console.error("Failed to save savings to localStorage", error);
-        }
-    }, [savingsGoals, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-loans-${userProfile.email}`, JSON.stringify(loans));
-        } catch (error) {
-            console.error("Failed to save loans to localStorage", error);
-        }
-    }, [loans, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-subscriptions-${userProfile.email}`, JSON.stringify(subscriptions));
-        } catch (error) {
-            console.error("Failed to save subscriptions to localStorage", error);
-        }
-    }, [subscriptions, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-scheduled-${userProfile.email}`, JSON.stringify(scheduledTransactions));
-        } catch (error) {
-            console.error("Failed to save scheduled transactions to localStorage", error);
-        }
-    }, [scheduledTransactions, userProfile.email]);
 
-    useEffect(() => {
-        if (!userProfile.email) return;
-        try {
-            localStorage.setItem(`wallet-investments-${userProfile.email}`, JSON.stringify(investments));
-        } catch (error) {
-            console.error("Failed to save investments to localStorage", error);
-        }
-    }, [investments, userProfile.email]);
 
 
     useEffect(() => {
@@ -284,45 +245,50 @@ const App: React.FC = () => {
         URL.revokeObjectURL(url);
     };
 
-    const addTransaction = useCallback((type: TransactionType, item: Omit<Transaction, 'id'>) => {
+    const addTransaction = useCallback(async (type: TransactionType, item: Omit<Transaction, 'id'>) => {
         const newItem = { ...item, id: generateId() };
-        if (type === TransactionType.Income) {
-            setIncome(prev => [newItem, ...prev]);
-        } else if (type === TransactionType.Expense) {
-            setExpenses(prev => [newItem, ...prev]);
-        }
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            const colName = type === TransactionType.Income ? 'income' : 'expenses';
+            await setDoc(doc(db, 'users', auth.currentUser.uid, colName, newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users'); }
     }, []);
 
-    const deleteTransaction = useCallback((type: TransactionType, id: number) => {
-        if (type === TransactionType.Income) {
-            setIncome(prev => prev.filter(item => item.id !== id));
-        } else if (type === TransactionType.Expense) {
-            setExpenses(prev => prev.filter(item => item.id !== id));
-        }
+    const deleteTransaction = useCallback(async (type: TransactionType, id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            const colName = type === TransactionType.Income ? 'income' : 'expenses';
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, colName, id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users'); }
     }, []);
 
-    const addSavingsGoal = useCallback((item: Omit<SavingsGoal, 'id' | 'extraContributions'>) => {
+    const addSavingsGoal = useCallback(async (item: Omit<SavingsGoal, 'id' | 'extraContributions'>) => {
         const newItem = { ...item, id: generateId(), extraContributions: [] };
-        setSavingsGoals(prev => [newItem, ...prev]);
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'savingsGoals', newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users/savingsGoals'); }
     }, []);
 
-    const deleteSavingsGoal = useCallback((id: number) => {
-        setSavingsGoals(prev => prev.filter(item => item.id !== id));
+    const deleteSavingsGoal = useCallback(async (id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'savingsGoals', id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/savingsGoals'); }
     }, []);
     
-    const addExtraContribution = useCallback((goalId: number, contribution: Omit<ExtraContribution, 'id'>) => {
-        setSavingsGoals(prevGoals => 
-            prevGoals.map(goal => {
-                if (goal.id === goalId) {
-                    return {
-                        ...goal,
-                        extraContributions: [{ ...contribution, id: generateId() }, ...goal.extraContributions],
-                    };
-                }
-                return goal;
-            })
-        );
-    }, []);
+    const addExtraContribution = useCallback(async (goalId: number, contribution: Omit<ExtraContribution, 'id'>) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            const goal = savingsGoals.find(g => g.id === goalId);
+            if (!goal) return;
+            const updated = {
+                ...goal,
+                extraContributions: [{ ...contribution, id: generateId() }, ...(goal.extraContributions || [])]
+            };
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'savingsGoals', goalId.toString()), updated);
+        } catch(e) { handleFirestoreError(e, OperationType.UPDATE, 'users/savingsGoals'); }
+    }, [savingsGoals]);
 
     const addIncomeCategory = useCallback((category: string) => {
         if (!incomeCategories.includes(category)) {
@@ -330,92 +296,114 @@ const App: React.FC = () => {
         }
     }, [incomeCategories]);
 
-    const addLoan = useCallback((item: Omit<Loan, 'id' | 'repayments' | 'outstandingAmount'>) => {
+    const addLoan = useCallback(async (item: Omit<Loan, 'id' | 'repayments' | 'outstandingAmount'>) => {
         const newItem: Loan = { 
             ...item, 
             id: generateId(), 
             repayments: [], 
             outstandingAmount: item.totalAmount 
         };
-        setLoans(prev => [newItem, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'loans', newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users/loans'); }
     }, []);
 
-    const deleteLoan = useCallback((id: number) => {
-        setLoans(prev => prev.filter(item => item.id !== id));
+    const deleteLoan = useCallback(async (id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'loans', id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/loans'); }
     }, []);
 
-    const addRepaymentToLoan = useCallback((loanId: number, repayment: Omit<Repayment, 'id'>) => {
-        let targetLoan: Loan | undefined;
-        setLoans(prevLoans => 
-            prevLoans.map(loan => {
-                if (loan.id === loanId) {
-                    targetLoan = loan;
-                    const newRepayment = { ...repayment, id: generateId() };
-                    return {
-                        ...loan,
-                        outstandingAmount: Math.max(0, subtractMoney(loan.outstandingAmount, repayment.amount)),
-                        repayments: [newRepayment, ...loan.repayments],
-                    };
-                }
-                return loan;
-            })
-        );
-
-        if (targetLoan) {
-            if (targetLoan.type === LoanType.Lent) {
+    const addRepaymentToLoan = useCallback(async (loanId: number, repayment: Omit<Repayment, 'id'>) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            const loan = loans.find(l => l.id === loanId);
+            if (!loan) return;
+            const newRepayment = { ...repayment, id: generateId() };
+            const updated = {
+                ...loan,
+                outstandingAmount: Math.max(0, subtractMoney(loan.outstandingAmount, repayment.amount)),
+                repayments: [newRepayment, ...(loan.repayments || [])]
+            };
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'loans', loanId.toString()), updated);
+            
+            if (loan.type === LoanType.Lent) {
                 addTransaction(TransactionType.Income, {
-                    name: `${t('repaymentFrom')} ${targetLoan.person}`,
+                    name: `${t('repaymentFrom')} ${loan.person}`,
                     amount: repayment.amount,
                     date: repayment.date,
                     category: 'Loan Repayment',
                 });
             } else {
                 addTransaction(TransactionType.Expense, {
-                    name: `${t('paymentTo')} ${targetLoan.person}`,
+                    name: `${t('paymentTo')} ${loan.person}`,
                     amount: repayment.amount,
                     date: repayment.date,
                     category: 'Loan Payment',
                 });
             }
-        }
-    }, [addTransaction, t]);
+        } catch(e) { handleFirestoreError(e, OperationType.UPDATE, 'users/loans'); }
+    }, [loans, addTransaction, t]);
 
-    const addSubscription = useCallback((item: Omit<Subscription, 'id'>) => {
+    const addSubscription = useCallback(async (item: Omit<Subscription, 'id'>) => {
         const newItem = { ...item, id: generateId() };
-        setSubscriptions(prev => [newItem, ...prev]);
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'subscriptions', newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users/subscriptions'); }
     }, []);
 
-    const updateSubscription = useCallback((updatedItem: Subscription) => {
-        setSubscriptions(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    const updateSubscription = useCallback(async (updatedItem: Subscription) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'subscriptions', updatedItem.id.toString()), updatedItem);
+        } catch(e) { handleFirestoreError(e, OperationType.UPDATE, 'users/subscriptions'); }
     }, []);
 
-    const deleteSubscription = useCallback((id: number) => {
-        setSubscriptions(prev => prev.filter(item => item.id !== id));
+    const deleteSubscription = useCallback(async (id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'subscriptions', id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/subscriptions'); }
     }, []);
 
-    const addScheduledTransaction = useCallback((item: Omit<ScheduledTransaction, 'id'>) => {
+    const addScheduledTransaction = useCallback(async (item: Omit<ScheduledTransaction, 'id'>) => {
         const newItem = { ...item, id: generateId() };
-        setScheduledTransactions(prev => [newItem, ...prev]);
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'scheduledTransactions', newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users/scheduledTransactions'); }
     }, []);
 
     const updateScheduledTransaction = useCallback((updatedItem: ScheduledTransaction) => {
         setScheduledTransactions(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
     }, []);
 
-    const deleteScheduledTransaction = useCallback((id: number) => {
-        setScheduledTransactions(prev => prev.filter(item => item.id !== id));
+    const deleteScheduledTransaction = useCallback(async (id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'scheduledTransactions', id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/scheduledTransactions'); }
     }, []);
     
-    const addInvestment = useCallback((item: Omit<Investment, 'id'>) => {
+    const addInvestment = useCallback(async (item: Omit<Investment, 'id'>) => {
         const newItem = { ...item, id: generateId() };
-        setInvestments(prev => [newItem, ...prev]);
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'investments', newItem.id.toString()), newItem);
+        } catch(e) { handleFirestoreError(e, OperationType.CREATE, 'users/investments'); }
     }, []);
 
-    const updateInvestment = useCallback((updatedItem: Investment) => {
-        setInvestments(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    const updateInvestment = useCallback(async (updatedItem: Investment) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'investments', updatedItem.id.toString()), updatedItem);
+        } catch(e) { handleFirestoreError(e, OperationType.UPDATE, 'users/investments'); }
     }, []);
 
-    const sellInvestment = useCallback((id: number) => {
+    const sellInvestment = useCallback(async (id: number) => {
         const investmentToSell = investments.find(inv => inv.id === id);
         if (investmentToSell) {
             const gain = multiplyMoney(subtractMoney(investmentToSell.currentPrice, investmentToSell.purchasePrice), investmentToSell.quantity);
@@ -427,12 +415,18 @@ const App: React.FC = () => {
                     category: t('investmentGainsCategory'),
                 });
             }
-            setInvestments(prev => prev.filter(item => item.id !== id));
+            try {
+                if (!auth.currentUser) throw new Error("Not logged in");
+                await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'investments', id.toString()));
+            } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/investments'); }
         }
     }, [investments, addTransaction, t]);
 
-    const deleteInvestment = useCallback((id: number) => {
-        setInvestments(prev => prev.filter(item => item.id !== id));
+    const deleteInvestment = useCallback(async (id: number) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'investments', id.toString()));
+        } catch(e) { handleFirestoreError(e, OperationType.DELETE, 'users/investments'); }
     }, []);
 
     const renderView = () => {
@@ -491,6 +485,8 @@ const App: React.FC = () => {
                         updateInvestment={updateInvestment}
                         sellInvestment={sellInvestment}
                         deleteInvestment={deleteInvestment}
+                        income={income}
+                        expenses={expenses}
                     /></div>;
             case ViewType.Settings:
                  return <div className="min-h-screen pt-4"><SettingsAndAboutView
@@ -648,6 +644,33 @@ const App: React.FC = () => {
                 return null;
         }
     };
+
+    if (!authReady) {
+        return <div className="min-h-screen flex items-center justify-center font-light text-gray-500">Loading...</div>;
+    }
+
+    if (!userProfile) {
+        return (
+            <div className={`min-h-screen flex flex-col items-center justify-center p-6 ${theme === 'dark' ? 'bg-[#0b0f19] text-gray-100' : 'bg-[#fcfdfd] text-gray-900'}`}>
+                <div className="w-full max-w-sm text-center">
+                    <h1 className="text-3xl font-light mb-4">Welcome to Waalet</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mb-8 font-light">Please sign in to access your personal finance dashboard.</p>
+                    {loginError && (
+                        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg mb-6 text-sm text-left">
+                            {loginError}
+                        </div>
+                    )}
+                    <button 
+                        onClick={login}
+                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-medium py-3 px-6 rounded-2xl shadow-lg transition-transform transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg>
+                        <span>Sign in with Google</span>
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen pb-24 px-0 relative font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0b0f19] text-gray-100' : 'bg-[#fcfdfd] text-gray-900'}`}>

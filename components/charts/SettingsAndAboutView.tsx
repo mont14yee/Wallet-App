@@ -1,3 +1,5 @@
+import { auth } from '../../firebaseConfig';
+import { signOut } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { UserProfile } from '../../types';
@@ -176,7 +178,7 @@ const SettingsContent: React.FC<SettingsProps> = ({ theme, setTheme }) => {
 // ==================================================================
 
 interface AboutContentProps {
-    userProfile: UserProfile;
+    userProfile: UserProfile | null;
     setUserProfile: (profile: UserProfile) => void;
 }
 
@@ -205,25 +207,35 @@ const AboutContent: React.FC<AboutContentProps> = ({ userProfile, setUserProfile
     };
 
     const [isEditing, setIsEditing] = useState(false);
-    const [name, setName] = useState(userProfile.name);
-    const [email, setEmail] = useState(userProfile.email);
-    const [avatar, setAvatar] = useState(userProfile.avatar || '');
+    const [name, setName] = useState(userProfile?.name || '');
+    const [email, setEmail] = useState(userProfile?.email || '');
+    const [avatar, setAvatar] = useState(userProfile?.avatar || '');
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Logout error', error);
+        }
+    };
 
     const handleProfileSave = (e: React.FormEvent) => {
         e.preventDefault();
-        setUserProfile({
-            ...userProfile,
-            name,
-            email,
-            avatar,
-        });
+        if (userProfile) {
+            setUserProfile({
+                ...userProfile,
+                name,
+                email,
+                avatar,
+            });
+        }
         setIsEditing(false);
     };
 
     const handleEditClick = () => {
-        setName(userProfile.name);
-        setEmail(userProfile.email);
-        setAvatar(userProfile.avatar || '');
+        setName(userProfile?.name || '');
+        setEmail(userProfile?.email || '');
+        setAvatar(userProfile?.avatar || '');
         setIsEditing(true);
     };
 
@@ -259,13 +271,18 @@ const AboutContent: React.FC<AboutContentProps> = ({ userProfile, setUserProfile
                         </form>
                     ) : (
                         <div className="flex flex-col sm:flex-row items-center gap-6">
-                            <img src={userProfile.avatar || `https://ui-avatars.com/api/?name=${userProfile.name.replace(/\s/g, '+')}&background=random&color=fff`} alt="User Avatar" className="w-20 h-20 rounded-full object-cover shadow-sm ring-4 ring-white dark:ring-gray-800" />
+                            <img src={userProfile?.avatar || `https://ui-avatars.com/api/?name=${userProfile?.name?.replace(/\s/g, '+') || 'User'}&background=random&color=fff`} alt="User Avatar" className="w-20 h-20 rounded-full object-cover shadow-sm ring-4 ring-white dark:ring-gray-800" />
                             <div className="flex-1 text-center sm:text-left">
-                                <p className="text-xl font-bold text-gray-900 dark:text-white">{userProfile.name}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{userProfile.email}</p>
-                                <button onClick={handleEditClick} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-purple-600 dark:text-cyan-400 bg-purple-50 dark:bg-cyan-900/20 hover:bg-purple-100 dark:hover:bg-cyan-900/40 transition-colors">
-                                   <i className="fas fa-pencil-alt text-xs"></i> {t('sidebarEditProfile')}
-                                </button>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">{userProfile?.name || 'Anonymous'}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{userProfile?.email || ''}</p>
+                                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2">
+                                    <button onClick={handleEditClick} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-purple-600 dark:text-cyan-400 bg-purple-50 dark:bg-cyan-900/20 hover:bg-purple-100 dark:hover:bg-cyan-900/40 transition-colors">
+                                       <i className="fas fa-pencil-alt text-xs"></i> {t('sidebarEditProfile')}
+                                    </button>
+                                    <button onClick={handleLogout} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                                       <i className="fas fa-sign-out-alt text-xs"></i> 'Log Out'
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -330,7 +347,7 @@ const AboutContent: React.FC<AboutContentProps> = ({ userProfile, setUserProfile
 // ==================================================================
 
 interface SettingsAndAboutViewProps {
-    userProfile: UserProfile;
+    userProfile: UserProfile | null;
     setUserProfile: (profile: UserProfile) => void;
     theme: 'light' | 'dark';
     setTheme: (theme: 'light' | 'dark') => void;
