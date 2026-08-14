@@ -1,4 +1,5 @@
 import { generateId } from '../constants';
+import { auth } from '../firebaseConfig';
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -54,9 +55,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
         setError(null);
 
         try {
+            const token = await auth.currentUser?.getIdToken();
             const response = await fetch('/api/chat', {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ messages, input }),
             });
             if (!response.ok) throw new Error('API Error');

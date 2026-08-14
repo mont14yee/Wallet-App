@@ -1,1 +1,0 @@
-components/charts/CategoryChart.tsx(117,42): error TS1005: '...' expected.

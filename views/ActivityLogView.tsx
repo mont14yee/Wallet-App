@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { AllTransaction, Transaction, TransactionType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 
 declare global {
     interface Window {
@@ -154,7 +154,7 @@ const ActivityLogView: React.FC<ActivityLogViewProps> = ({ transactions, addTran
     const streamRef = useRef<MediaStream | null>(null);
 
     const sortedTransactions = useMemo(() => {
-        return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return [...transactions].sort((a, b) => parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime());
     }, [transactions]);
 
     const handleQuickAddSubmit = (e: React.FormEvent) => {

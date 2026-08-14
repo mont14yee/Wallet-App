@@ -1,0 +1,338 @@
+App.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+App.tsx(479,38): error TS2345: Argument of type 'ViewType | null' is not assignable to parameter of type 'SetStateAction<{ x: number; y: number; } | null>'.
+  Type 'ViewType.Dashboard' is not assignable to type 'SetStateAction<{ x: number; y: number; } | null>'.
+App.tsx(527,109): error TS7031: Binding element 'title' implicitly has an 'any' type.
+App.tsx(527,116): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+App.tsx(527,122): error TS7031: Binding element 'children' implicitly has an 'any' type.
+App.tsx(700,42): error TS2345: Argument of type 'ViewType | null' is not assignable to parameter of type 'SetStateAction<{ x: number; y: number; } | null>'.
+  Type 'ViewType.Dashboard' is not assignable to type 'SetStateAction<{ x: number; y: number; } | null>'.
+components/Chatbot.tsx(3,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/Chatbot.tsx(17,44): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+components/Chatbot.tsx(17,52): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+components/FooterNav.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/FooterNav.tsx(24,48): error TS7031: Binding element 'activeView' implicitly has an 'any' type.
+components/FooterNav.tsx(24,60): error TS7031: Binding element 'setActiveView' implicitly has an 'any' type.
+components/Header.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/Header.tsx(13,42): error TS7031: Binding element 'activeView' implicitly has an 'any' type.
+components/Header.tsx(13,54): error TS7031: Binding element 'userProfile' implicitly has an 'any' type.
+components/Header.tsx(13,67): error TS7031: Binding element 'onSelectFeature' implicitly has an 'any' type.
+components/Header.tsx(13,84): error TS7031: Binding element 'setActiveView' implicitly has an 'any' type.
+components/NutritionView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/NutritionView.tsx(11,56): error TS7031: Binding element 'shoppingList' implicitly has an 'any' type.
+components/NutritionView.tsx(22,48): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(3,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/TransactionView.tsx(44,9): error TS7031: Binding element 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(44,15): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+components/TransactionView.tsx(44,21): error TS7031: Binding element 'color' implicitly has an 'any' type.
+components/TransactionView.tsx(44,28): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+components/TransactionView.tsx(78,9): error TS7031: Binding element 'categories' implicitly has an 'any' type.
+components/TransactionView.tsx(78,21): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+components/TransactionView.tsx(78,29): error TS7031: Binding element 'onCancel' implicitly has an 'any' type.
+components/TransactionView.tsx(78,39): error TS7031: Binding element 'title' implicitly has an 'any' type.
+components/TransactionView.tsx(78,46): error TS7031: Binding element 'nameLabel' implicitly has an 'any' type.
+components/TransactionView.tsx(78,57): error TS7031: Binding element 'namePlaceholder' implicitly has an 'any' type.
+components/TransactionView.tsx(78,74): error TS7031: Binding element 'initialData' implicitly has an 'any' type.
+components/TransactionView.tsx(78,87): error TS7031: Binding element 'onAddCategory' implicitly has an 'any' type.
+components/TransactionView.tsx(90,51): error TS7006: Parameter 'c' implicitly has an 'any' type.
+components/TransactionView.tsx(126,45): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+components/TransactionView.tsx(140,58): error TS7006: Parameter 'props' implicitly has an 'any' type.
+components/TransactionView.tsx(159,21): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(163,22): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+components/TransactionView.tsx(163,27): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(166,21): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(170,22): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+components/TransactionView.tsx(170,27): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(196,26): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/TransactionView.tsx(319,40): error TS7006: Parameter 'c' implicitly has an 'any' type.
+components/TransactionView.tsx(319,82): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+components/ViewContainer.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/ViewContainer.tsx(14,56): error TS7031: Binding element 'title' implicitly has an 'any' type.
+components/ViewContainer.tsx(14,63): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+components/ViewContainer.tsx(14,69): error TS7031: Binding element 'actionButton' implicitly has an 'any' type.
+components/ViewContainer.tsx(14,83): error TS7031: Binding element 'children' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/charts/BloomingFlowerChart.tsx(13,68): error TS7031: Binding element 'data' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(13,74): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(17,43): error TS7006: Parameter 'sub' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(18,34): error TS7006: Parameter 'sub' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(31,42): error TS7006: Parameter 'd' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(39,49): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+components/charts/BloomingFlowerChart.tsx(39,54): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/charts/CategoryChart.tsx(17,41): error TS7031: Binding element 'active' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(17,49): error TS7031: Binding element 'payload' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(65,56): error TS7031: Binding element 'data' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(65,62): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(65,69): error TS7031: Binding element 'onCategoryClick' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(83,54): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(83,59): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/charts/CategoryChart.tsx(87,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/charts/FinancialHealthChart.tsx(17,41): error TS7031: Binding element 'active' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(17,49): error TS7031: Binding element 'payload' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(17,58): error TS7031: Binding element 'label' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(36,70): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(36,77): error TS7031: Binding element 'data' implicitly has an 'any' type.
+components/charts/FinancialHealthChart.tsx(41,36): error TS7006: Parameter 'd' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/charts/MonthlyFlowChart.tsx(14,41): error TS7031: Binding element 'active' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(14,49): error TS7031: Binding element 'payload' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(14,58): error TS7031: Binding element 'label' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(31,62): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(31,69): error TS7031: Binding element 'data' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(31,75): error TS7031: Binding element 'dataKey' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(31,84): error TS7031: Binding element 'color' implicitly has an 'any' type.
+components/charts/MonthlyFlowChart.tsx(31,91): error TS7031: Binding element 'onMonthClick' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(3,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+components/charts/SettingsAndAboutView.tsx(17,60): error TS7031: Binding element 'title' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(17,67): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(17,73): error TS7031: Binding element 'children' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(38,52): error TS7031: Binding element 'label' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(38,59): error TS7031: Binding element 'subLabel' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(38,69): error TS7031: Binding element 'children' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(38,79): error TS7031: Binding element 'onClick' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(62,53): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(62,60): error TS7031: Binding element 'setTheme' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(78,90): error TS7031: Binding element 'isOn' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(78,96): error TS7031: Binding element 'onToggle' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(78,106): error TS7031: Binding element 'id' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(185,54): error TS7031: Binding element 'userProfile' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(185,67): error TS7031: Binding element 'setUserProfile' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(356,70): error TS7031: Binding element 'userProfile' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(356,83): error TS7031: Binding element 'setUserProfile' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(356,99): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+components/charts/SettingsAndAboutView.tsx(356,106): error TS7031: Binding element 'setTheme' implicitly has an 'any' type.
+constants.ts(37,74): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+contexts/LanguageContext.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+contexts/LanguageContext.tsx(23,77): error TS7031: Binding element 'children' implicitly has an 'any' type.
+firebaseConfig.ts(4,28): error TS2732: Cannot find module './firebase-applet-config.json'. Consider using '--resolveJsonModule' to import module with '.json' extension.
+views/ActivityLogView.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/ActivityLogView.tsx(37,9): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+views/ActivityLogView.tsx(37,17): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+views/ActivityLogView.tsx(37,26): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+views/ActivityLogView.tsx(37,34): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/ActivityLogView.tsx(37,52): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/ActivityLogView.tsx(37,71): error TS7031: Binding element 'initialName' implicitly has an 'any' type.
+views/ActivityLogView.tsx(97,73): error TS7006: Parameter 'c' implicitly has an 'any' type.
+views/ActivityLogView.tsx(117,61): error TS7031: Binding element 'item' implicitly has an 'any' type.
+views/ActivityLogView.tsx(145,60): error TS7031: Binding element 'transactions' implicitly has an 'any' type.
+views/ActivityLogView.tsx(145,74): error TS7031: Binding element 'addTransaction' implicitly has an 'any' type.
+views/ActivityLogView.tsx(145,90): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/ActivityLogView.tsx(145,108): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/CalculatorView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/CalculatorView.tsx(7,194): error TS7031: Binding element 'label' implicitly has an 'any' type.
+views/CalculatorView.tsx(7,201): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/CalculatorView.tsx(7,207): error TS7031: Binding element 'type' implicitly has an 'any' type.
+views/CalculatorView.tsx(7,213): error TS7031: Binding element 'value' implicitly has an 'any' type.
+views/CalculatorView.tsx(7,220): error TS7031: Binding element 'onChange' implicitly has an 'any' type.
+views/CalculatorView.tsx(7,230): error TS7031: Binding element 'unit' implicitly has an 'any' type.
+views/CalculatorView.tsx(26,97): error TS7031: Binding element 'title' implicitly has an 'any' type.
+views/CalculatorView.tsx(26,104): error TS7031: Binding element 'children' implicitly has an 'any' type.
+views/CalculatorView.tsx(26,114): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/CalculatorView.tsx(351,101): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/CalculatorView.tsx(351,107): error TS7031: Binding element 'label' implicitly has an 'any' type.
+views/CalculatorView.tsx(351,114): error TS7031: Binding element 'onClick' implicitly has an 'any' type.
+views/CalendarView.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/CalendarView.tsx(19,58): error TS7031: Binding element 'event' implicitly has an 'any' type.
+views/CalendarView.tsx(51,54): error TS7031: Binding element 'scheduled' implicitly has an 'any' type.
+views/CalendarView.tsx(51,65): error TS7031: Binding element 'loans' implicitly has an 'any' type.
+views/CalendarView.tsx(51,72): error TS7031: Binding element 'subscriptions' implicitly has an 'any' type.
+views/CalendarView.tsx(67,27): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/CalendarView.tsx(74,23): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/CalendarView.tsx(81,31): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/CurrencyConverterView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/DashboardView.tsx(3,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/DashboardView.tsx(62,56): error TS7031: Binding element 'income' implicitly has an 'any' type.
+views/DashboardView.tsx(62,64): error TS7031: Binding element 'expenses' implicitly has an 'any' type.
+views/DashboardView.tsx(62,74): error TS7031: Binding element 'netAmount' implicitly has an 'any' type.
+views/DashboardView.tsx(62,85): error TS7031: Binding element 'allIncome' implicitly has an 'any' type.
+views/DashboardView.tsx(62,96): error TS7031: Binding element 'allExpenses' implicitly has an 'any' type.
+views/DashboardView.tsx(62,109): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/DashboardView.tsx(62,116): error TS7031: Binding element 'setActiveView' implicitly has an 'any' type.
+views/DashboardView.tsx(62,131): error TS7031: Binding element 'setCategoryFilter' implicitly has an 'any' type.
+views/DashboardView.tsx(62,150): error TS7031: Binding element 'exportToCSV' implicitly has an 'any' type.
+views/DashboardView.tsx(62,163): error TS7031: Binding element 'assets' implicitly has an 'any' type.
+views/DashboardView.tsx(62,171): error TS7031: Binding element 'liabilities' implicitly has an 'any' type.
+views/DashboardView.tsx(119,49): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/DashboardView.tsx(119,54): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/DashboardView.tsx(120,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/DashboardView.tsx(120,58): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/DashboardView.tsx(128,30): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+views/DashboardView.tsx(129,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+views/DashboardView.tsx(170,120): error TS7031: Binding element 'title' implicitly has an 'any' type.
+views/DashboardView.tsx(170,127): error TS7031: Binding element 'amount' implicitly has an 'any' type.
+views/DashboardView.tsx(170,135): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/DashboardView.tsx(170,141): error TS7031: Binding element 'color' implicitly has an 'any' type.
+views/DashboardView.tsx(170,148): error TS7031: Binding element 'borderColor' implicitly has an 'any' type.
+views/DashboardView.tsx(186,131): error TS7031: Binding element 'breakdown' implicitly has an 'any' type.
+views/DashboardView.tsx(186,142): error TS7031: Binding element 'total' implicitly has an 'any' type.
+views/DashboardView.tsx(186,149): error TS7031: Binding element 'type' implicitly has an 'any' type.
+views/DashboardView.tsx(188,41): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/DashboardView.tsx(188,47): error TS7006: Parameter 'index' implicitly has an 'any' type.
+views/DashboardView.tsx(311,103): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+views/DashboardView.tsx(331,105): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+views/ExpensesView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/ExpensesView.tsx(19,54): error TS7031: Binding element 'items' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,61): error TS7031: Binding element 'allItems' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,71): error TS7031: Binding element 'total' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,78): error TS7031: Binding element 'addExpense' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,90): error TS7031: Binding element 'deleteExpense' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,105): error TS7031: Binding element 'categoryFilter' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,121): error TS7031: Binding element 'onClearFilter' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,136): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/ExpensesView.tsx(19,155): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/IncomeView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/IncomeView.tsx(20,50): error TS7031: Binding element 'items' implicitly has an 'any' type.
+views/IncomeView.tsx(20,57): error TS7031: Binding element 'allItems' implicitly has an 'any' type.
+views/IncomeView.tsx(20,67): error TS7031: Binding element 'total' implicitly has an 'any' type.
+views/IncomeView.tsx(20,74): error TS7031: Binding element 'addIncome' implicitly has an 'any' type.
+views/IncomeView.tsx(20,85): error TS7031: Binding element 'deleteIncome' implicitly has an 'any' type.
+views/IncomeView.tsx(20,99): error TS7031: Binding element 'categoryFilter' implicitly has an 'any' type.
+views/IncomeView.tsx(20,115): error TS7031: Binding element 'onClearFilter' implicitly has an 'any' type.
+views/IncomeView.tsx(20,130): error TS7031: Binding element 'categories' implicitly has an 'any' type.
+views/IncomeView.tsx(20,142): error TS7031: Binding element 'addCategory' implicitly has an 'any' type.
+views/IncomeView.tsx(20,155): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/InvestmentsView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/InvestmentsView.tsx(22,9): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+views/InvestmentsView.tsx(22,17): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+views/InvestmentsView.tsx(22,26): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+views/InvestmentsView.tsx(85,9): error TS7031: Binding element 'item' implicitly has an 'any' type.
+views/InvestmentsView.tsx(85,15): error TS7031: Binding element 'onUpdate' implicitly has an 'any' type.
+views/InvestmentsView.tsx(85,25): error TS7031: Binding element 'onSell' implicitly has an 'any' type.
+views/InvestmentsView.tsx(85,33): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+views/InvestmentsView.tsx(158,60): error TS7031: Binding element 'investments' implicitly has an 'any' type.
+views/InvestmentsView.tsx(158,73): error TS7031: Binding element 'addInvestment' implicitly has an 'any' type.
+views/InvestmentsView.tsx(158,88): error TS7031: Binding element 'updateInvestment' implicitly has an 'any' type.
+views/InvestmentsView.tsx(158,106): error TS7031: Binding element 'sellInvestment' implicitly has an 'any' type.
+views/InvestmentsView.tsx(158,122): error TS7031: Binding element 'deleteInvestment' implicitly has an 'any' type.
+views/InvestmentsView.tsx(172,44): error TS2339: Property 'date' does not exist on type 'never'.
+views/InvestmentsView.tsx(177,44): error TS2339: Property 'date' does not exist on type 'never'.
+views/InvestmentsView.tsx(182,44): error TS2339: Property 'date' does not exist on type 'never'.
+views/InvestmentsView.tsx(186,101): error TS2339: Property 'amount' does not exist on type 'never'.
+views/InvestmentsView.tsx(187,105): error TS2339: Property 'amount' does not exist on type 'never'.
+views/InvestmentsView.tsx(188,103): error TS2339: Property 'amount' does not exist on type 'never'.
+views/InvestmentsView.tsx(222,48): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/InvestmentsView.tsx(222,53): error TS7006: Parameter 'inv' implicitly has an 'any' type.
+views/InvestmentsView.tsx(223,47): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/InvestmentsView.tsx(223,52): error TS7006: Parameter 'inv' implicitly has an 'any' type.
+views/InvestmentsView.tsx(230,32): error TS7006: Parameter 'inv' implicitly has an 'any' type.
+views/InvestmentsView.tsx(233,20): error TS7006: Parameter 'd' implicitly has an 'any' type.
+views/InvestmentsView.tsx(342,53): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+views/InvestmentsView.tsx(342,60): error TS7006: Parameter 'index' implicitly has an 'any' type.
+views/InvestmentsView.tsx(354,37): error TS7006: Parameter 'inv' implicitly has an 'any' type.
+views/LoansView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/LoansView.tsx(14,93): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+views/LoansView.tsx(14,101): error TS7031: Binding element 'onCancel' implicitly has an 'any' type.
+views/LoansView.tsx(153,108): error TS7031: Binding element 'loanId' implicitly has an 'any' type.
+views/LoansView.tsx(153,116): error TS7031: Binding element 'onAddRepayment' implicitly has an 'any' type.
+views/LoansView.tsx(181,177): error TS7031: Binding element 'loan' implicitly has an 'any' type.
+views/LoansView.tsx(181,183): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+views/LoansView.tsx(181,193): error TS7031: Binding element 'onAddRepayment' implicitly has an 'any' type.
+views/LoansView.tsx(181,209): error TS7031: Binding element 'isExpanded' implicitly has an 'any' type.
+views/LoansView.tsx(181,221): error TS7031: Binding element 'onToggleExpand' implicitly has an 'any' type.
+views/LoansView.tsx(243,54): error TS7006: Parameter 'rp' implicitly has an 'any' type.
+views/LoansView.tsx(261,48): error TS7031: Binding element 'loans' implicitly has an 'any' type.
+views/LoansView.tsx(261,55): error TS7031: Binding element 'addLoan' implicitly has an 'any' type.
+views/LoansView.tsx(261,64): error TS7031: Binding element 'deleteLoan' implicitly has an 'any' type.
+views/LoansView.tsx(261,76): error TS7031: Binding element 'addRepayment' implicitly has an 'any' type.
+views/LoansView.tsx(268,35): error TS7006: Parameter 'l' implicitly has an 'any' type.
+views/LoansView.tsx(269,39): error TS7006: Parameter 'l' implicitly has an 'any' type.
+views/LoansView.tsx(273,37): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/LoansView.tsx(273,42): error TS7006: Parameter 'l' implicitly has an 'any' type.
+views/LoansView.tsx(274,45): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+views/LoansView.tsx(274,50): error TS7006: Parameter 'l' implicitly has an 'any' type.
+views/LoansView.tsx(321,40): error TS7006: Parameter 'loan' implicitly has an 'any' type.
+views/MoreView.tsx(1,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/MoreView.tsx(16,9): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/MoreView.tsx(16,15): error TS7031: Binding element 'title' implicitly has an 'any' type.
+views/MoreView.tsx(16,22): error TS7031: Binding element 'description' implicitly has an 'any' type.
+views/MoreView.tsx(16,35): error TS7031: Binding element 'onClick' implicitly has an 'any' type.
+views/MoreView.tsx(16,44): error TS7031: Binding element 'color' implicitly has an 'any' type.
+views/MoreView.tsx(38,46): error TS7031: Binding element 'onSelectFeature' implicitly has an 'any' type.
+views/MoreView.tsx(97,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+views/ReportsView.tsx(3,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/ReportsView.tsx(36,101): error TS7031: Binding element 'title' implicitly has an 'any' type.
+views/ReportsView.tsx(36,108): error TS7031: Binding element 'value' implicitly has an 'any' type.
+views/ReportsView.tsx(36,115): error TS7031: Binding element 'icon' implicitly has an 'any' type.
+views/ReportsView.tsx(36,121): error TS7031: Binding element 'color' implicitly has an 'any' type.
+views/ReportsView.tsx(46,72): error TS7031: Binding element 'summary' implicitly has an 'any' type.
+views/ReportsView.tsx(98,9): error TS7031: Binding element 'data' implicitly has an 'any' type.
+views/ReportsView.tsx(98,15): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/ReportsView.tsx(98,22): error TS7031: Binding element 'onCategoryClick' implicitly has an 'any' type.
+views/ReportsView.tsx(98,39): error TS7031: Binding element 'activeCategory' implicitly has an 'any' type.
+views/ReportsView.tsx(102,41): error TS7006: Parameter 't' implicitly has an 'any' type.
+views/ReportsView.tsx(104,29): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/ReportsView.tsx(164,80): error TS7031: Binding element 'summary' implicitly has an 'any' type.
+views/ReportsView.tsx(164,89): error TS7031: Binding element 'isLoading' implicitly has an 'any' type.
+views/ReportsView.tsx(192,52): error TS7031: Binding element 'userProfile' implicitly has an 'any' type.
+views/ReportsView.tsx(192,65): error TS7031: Binding element 'allTransactions' implicitly has an 'any' type.
+views/ReportsView.tsx(192,82): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/ReportsView.tsx(192,100): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/ReportsView.tsx(192,119): error TS7031: Binding element 'shoppingCategories' implicitly has an 'any' type.
+views/ReportsView.tsx(242,20): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+views/ReportsView.tsx(304,49): error TS7006: Parameter 't' implicitly has an 'any' type.
+views/ReportsView.tsx(309,45): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+views/ReportsView.tsx(309,50): error TS7006: Parameter 't' implicitly has an 'any' type.
+views/ReportsView.tsx(317,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+views/ReportsView.tsx(317,45): error TS7006: Parameter 'b' implicitly has an 'any' type.
+views/SavingsView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/SavingsView.tsx(81,101): error TS7031: Binding element 'goal' implicitly has an 'any' type.
+views/SavingsView.tsx(81,107): error TS7031: Binding element 'projection' implicitly has an 'any' type.
+views/SavingsView.tsx(81,119): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/SavingsView.tsx(86,43): error TS7006: Parameter 'd' implicitly has an 'any' type.
+views/SavingsView.tsx(109,201): error TS7031: Binding element 'item' implicitly has an 'any' type.
+views/SavingsView.tsx(109,207): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+views/SavingsView.tsx(109,217): error TS7031: Binding element 'onAddExtra' implicitly has an 'any' type.
+views/SavingsView.tsx(109,229): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/SavingsView.tsx(177,52): error TS7031: Binding element 'items' implicitly has an 'any' type.
+views/SavingsView.tsx(177,59): error TS7031: Binding element 'addSavingsGoal' implicitly has an 'any' type.
+views/SavingsView.tsx(177,75): error TS7031: Binding element 'deleteSavingsGoal' implicitly has an 'any' type.
+views/SavingsView.tsx(177,94): error TS7031: Binding element 'addExtraContribution' implicitly has an 'any' type.
+views/SavingsView.tsx(177,116): error TS7031: Binding element 'netBalance' implicitly has an 'any' type.
+views/SavingsView.tsx(177,128): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/SavingsView.tsx(257,31): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/ScheduledView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/ScheduledView.tsx(39,9): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+views/ScheduledView.tsx(39,17): error TS7031: Binding element 'onCancel' implicitly has an 'any' type.
+views/ScheduledView.tsx(39,27): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/ScheduledView.tsx(39,45): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/ScheduledView.tsx(92,83): error TS7006: Parameter 'c' implicitly has an 'any' type.
+views/ScheduledView.tsx(129,9): error TS7031: Binding element 'item' implicitly has an 'any' type.
+views/ScheduledView.tsx(129,15): error TS7031: Binding element 'onLog' implicitly has an 'any' type.
+views/ScheduledView.tsx(129,22): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+views/ScheduledView.tsx(149,92): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ none: string; biweekly: string; weekly: string; monthly: string; yearly: string; }'.
+views/ScheduledView.tsx(167,56): error TS7031: Binding element 'scheduled' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,67): error TS7031: Binding element 'addScheduled' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,81): error TS7031: Binding element 'updateScheduled' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,98): error TS7031: Binding element 'deleteScheduled' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,115): error TS7031: Binding element 'logTransaction' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,131): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/ScheduledView.tsx(167,149): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/ScheduledView.tsx(197,34): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+views/ScheduledView.tsx(197,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(2,8): error TS1259: Module '"/app/applet/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+views/SubscriptionsView.tsx(18,170): error TS7031: Binding element 'sub' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(18,175): error TS7031: Binding element 'onUpdate' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(18,185): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(18,195): error TS7031: Binding element 'onEdit' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(59,62): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ none: string; biweekly: string; weekly: string; monthly: string; yearly: string; }'.
+views/SubscriptionsView.tsx(89,64): error TS7031: Binding element 'subscriptions' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,79): error TS7031: Binding element 'addSubscription' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,96): error TS7031: Binding element 'updateSubscription' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,116): error TS7031: Binding element 'deleteSubscription' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,136): error TS7031: Binding element 'theme' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,143): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(89,162): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(97,62): error TS7006: Parameter 's' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(98,61): error TS7006: Parameter 's' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(103,38): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(103,43): error TS7006: Parameter 'sub' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(125,52): error TS7006: Parameter 's' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(173,52): error TS7006: Parameter 'sub' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(185,65): error TS7006: Parameter 's' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(193,182): error TS7031: Binding element 'sub' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(193,187): error TS7031: Binding element 'onSave' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(193,195): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(193,204): error TS7031: Binding element 'expenseCategories' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(193,223): error TS7031: Binding element 'incomeCategories' implicitly has an 'any' type.
+views/SubscriptionsView.tsx(268,74): error TS7006: Parameter 'c' implicitly has an 'any' type.

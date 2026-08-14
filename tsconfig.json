@@ -9,6 +9,7 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
     "types": [
@@ -26,5 +27,6 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
 }

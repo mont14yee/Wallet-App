@@ -16,7 +16,7 @@ interface ScheduledViewProps {
 }
 
 const getNextDueDate = (lastDueDate: string, frequency: Frequency): string => {
-    const nextDate = new Date(lastDueDate);
+    const nextDate = parseLocalDate(lastDueDate);
     switch (frequency) {
         case Frequency.Weekly:
             nextDate.setDate(nextDate.getDate() + 7);
@@ -169,7 +169,7 @@ const ScheduledView: React.FC<ScheduledViewProps> = ({ scheduled, addScheduled, 
     const [showForm, setShowForm] = useState(false);
 
     const sortedScheduled = useMemo(() => {
-        return [...scheduled].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime());
+        return [...scheduled].sort((a, b) => parseLocalDate(a.nextDueDate).getTime() - parseLocalDate(b.nextDueDate).getTime());
     }, [scheduled]);
 
     const handleLogTransaction = (item: ScheduledTransaction) => {

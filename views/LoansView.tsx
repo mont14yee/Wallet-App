@@ -2,7 +2,7 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Loan, LoanType, Repayment, InterestType, RepaymentSchedule } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 
 interface LoansViewProps {
     loans: Loan[];
@@ -26,8 +26,8 @@ const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => vo
     const calculateEMI = () => {
         const p = parseFloat(totalAmount);
         const annualRate = parseFloat(interestRate) / 100;
-        const start = new Date(date);
-        const end = new Date(dueDate);
+        const start = parseLocalDate(date);
+        const end = parseLocalDate(dueDate);
 
         // Basic validation: must be a monthly repayment schedule with a valid amount, dates, and term.
         if (repaymentSchedule !== RepaymentSchedule.Monthly || isNaN(p) || p <= 0 || !date || !dueDate || end <= start) {
@@ -181,7 +181,7 @@ const AddRepaymentForm: React.FC<{ loanId: number; onAddRepayment: LoansViewProp
 const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepayment: LoansViewProps['addRepayment']; isExpanded: boolean; onToggleExpand: () => void; }> = ({ loan, onDelete, onAddRepayment, isExpanded, onToggleExpand }) => {
     const { t, currencySettings } = useLanguage();
     const isLent = loan.type === LoanType.Lent;
-    const isOverdue = new Date(loan.dueDate) < new Date() && loan.outstandingAmount > 0;
+    const isOverdue = parseLocalDate(loan.dueDate) < new Date() && loan.outstandingAmount > 0;
     const progress = loan.totalAmount > 0 ? ((subtractMoney(loan.totalAmount, loan.outstandingAmount)) / loan.totalAmount) * 100 : 0;
     
     const handleDelete = (e: React.MouseEvent) => {

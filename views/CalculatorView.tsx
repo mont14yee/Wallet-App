@@ -1,7 +1,7 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 
 // --- UI Components ---
 const InputField: React.FC<{ label: string; icon: string; type: string; value: string; onChange: (val: string) => void; placeholder?: string; step?: string; min?: string; unit?: string }> = ({ label, icon, type, value, onChange, unit, ...props }) => (
@@ -158,8 +158,8 @@ const DateCalculator: React.FC = () => {
     const [result, setResult] = useState<string | null>(null);
 
     const calculateDifference = useCallback(() => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        const start = parseLocalDate(startDate);
+        const end = parseLocalDate(endDate);
         if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
         
         const diffTime = end.getTime() - start.getTime();

@@ -1,29 +1,15 @@
-import { multiplyMoney, divideMoney } from '../utils/money';
+import { multiplyMoney } from '../utils/money';
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// Cache for exchange rates
-let cachedRates: Record<string, number> | null = null;
-let lastFetchTime: number | null = null;
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+interface ExchangeRateCache {
+    rates: Record<string, number>;
+    timestamp: number;
+}
 
-const fetchExchangeRates = async (): Promise<Record<string, number>> => {
-    const now = Date.now();
-    if (cachedRates && lastFetchTime && (now - lastFetchTime < CACHE_DURATION)) {
-        return cachedRates;
-    }
-
-    // Fetch from a free API, using USD as base
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-    if (!response.ok) {
-        throw new Error('Failed to fetch exchange rates');
-    }
-    const data = await response.json();
-    cachedRates = data.rates;
-    lastFetchTime = now;
-    return cachedRates!;
-};
+const rateCache: Record<string, ExchangeRateCache> = {};
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const CurrencyConverter: React.FC = () => {
     const { t, currencySettings } = useLanguage();
@@ -58,21 +44,33 @@ const CurrencyConverter: React.FC = () => {
         }
 
         try {
-            const rates = await fetchExchangeRates();
+            let rates: Record<string, number>;
+            const now = Date.now();
+            const cached = rateCache[fromCurrency];
             
-            // The rates are based on USD. 
-            // So 1 USD = rates[currency]
-            const fromRate = rates[fromCurrency];
-            const toRate = rates[toCurrency];
+            if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+                rates = cached.rates;
+            } else {
+                const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch exchange rates');
+                }
+                const data = await response.json();
+                rates = data.rates;
+                
+                rateCache[fromCurrency] = {
+                    rates: data.rates,
+                    timestamp: now,
+                };
+            }
             
-            if (!fromRate || !toRate) {
+            const rate = rates[toCurrency];
+            
+            if (!rate || isNaN(rate)) {
                 throw new Error('Exchange rate not found for selected currencies');
             }
             
-            // Convert 'fromCurrency' to USD first, then USD to 'toCurrency'
-            // amountInUSD = numAmount / fromRate
-            // convertedAmount = amountInUSD * toRate
-            const convertedAmount = (numAmount / fromRate) * toRate;
+            const convertedAmount = multiplyMoney(numAmount, rate);
             
             setResult(formatCurrency(convertedAmount, { ...currencySettings, symbol: toCurrency }));
         } catch (e) {

@@ -102,13 +102,13 @@ const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({ subscriptions, ad
     const { totalOutflow, totalInflow } = useMemo(() => {
         return subscriptions.reduce((acc, sub) => {
             let monthlyAmount = sub.amount;
-            if (sub.frequency === Frequency.Yearly) monthlyAmount /= 12;
-            if (sub.frequency === Frequency.Weekly) monthlyAmount *= 4; // Approximation
+            if (sub.frequency === Frequency.Yearly) monthlyAmount = divideMoney(monthlyAmount, 12);
+            if (sub.frequency === Frequency.Weekly) monthlyAmount = multiplyMoney(monthlyAmount, 4); // Approximation
 
             if (sub.type === SubscriptionType.Expense) {
-                acc.totalOutflow += monthlyAmount;
+                acc.totalOutflow = addMoney(acc.totalOutflow, monthlyAmount);
             } else {
-                acc.totalInflow += monthlyAmount;
+                acc.totalInflow = addMoney(acc.totalInflow, monthlyAmount);
             }
             return acc;
         }, { totalOutflow: 0, totalInflow: 0 });

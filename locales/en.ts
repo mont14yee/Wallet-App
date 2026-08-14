@@ -124,6 +124,7 @@ export default {
     outgoings: 'Outgoings',
     netBalance: 'Net Balance',
     financialReports: 'Reports',
+    reports: 'Reports',
     reportsDescription: 'Generate detailed financial reports.',
     nutrition: 'Nutrition',
     nutritionDescription: 'AI-powered meal planning from your shopping list.',
@@ -401,5 +402,4 @@ export default {
     other: 'Other',
     portfolioAllocation: 'Portfolio Allocation',
     noInvestments: 'No investments found. Add one to get started!',
-    reports: 'Reports',
 };

@@ -2,12 +2,50 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
+import admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
+import rateLimit from 'express-rate-limit';
+
+if (!admin.getApps().length) {
+  admin.initializeApp();
+}
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Authentication Middleware
+  const authMiddleware = async (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized: Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    try {
+      const decodedToken = await getAuth().verifyIdToken(token);
+      req.user = decodedToken;
+      next();
+    } catch (error) {
+      console.error('Error verifying auth token', error);
+      res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+  };
+
+  // Rate Limiting Middleware
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each user to 100 requests per windowMs
+    keyGenerator: (req: any) => {
+      return req.user.uid;
+    },
+    message: 'Too many requests from this user, please try again later.',
+  });
+
+  // Apply middlewares to API routes
+  app.use('/api/', authMiddleware, apiLimiter);
 
   // API endpoints
   app.post("/api/chat", async (req, res) => {
@@ -28,9 +66,9 @@ async function startServer() {
       });
       const response = await chat.sendMessage({ message: input });
       res.json({ text: response.text });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ error: (e as any).message });
     }
   });
 
@@ -95,9 +133,9 @@ async function startServer() {
         },
       });
       res.json({ text: response.text });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ error: (e as any).message });
     }
   });
 
@@ -110,9 +148,9 @@ async function startServer() {
         contents: prompt,
       });
       res.json({ text: response.text });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      res.status(500).json({ error: e.message });
+      res.status(500).json({ error: (e as any).message });
     }
   });
 

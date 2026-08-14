@@ -2,6 +2,7 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { generateId, formatCurrency, parseLocalDate } from '../constants';
+import { auth } from '../firebaseConfig';
 import { AllTransaction, TransactionType, UserProfile } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -276,9 +277,13 @@ ${top5Expenses}
 
 Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tips should be practical and relevant to the data provided. For example, if food spending is high, suggest meal planning. If the net balance is negative, suggest reviewing specific spending categories. Do not use markdown formatting like headers or lists. Just provide a single paragraph of text.`;
 
+            const token = await auth.currentUser?.getIdToken();
             const response = await fetch('/api/report-summary', {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt })
             });
             if (!response.ok) throw new Error('API Error');
@@ -309,7 +314,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
         
         const fullSummary = { ...newSummary, netBalance: subtractMoney(newSummary.totalIncome, newSummary.totalOutgoings), transactionCount: filtered.length };
 
-        setGeneratedReport(filtered.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        setGeneratedReport(filtered.sort((a,b) => parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime()));
         setReportSummary(fullSummary);
         setCategoryFilter(null);
         generateAndSetAiSummary(fullSummary, filtered);

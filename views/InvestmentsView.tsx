@@ -2,7 +2,7 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Investment, Transaction } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface InvestmentsViewProps {
@@ -169,17 +169,17 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
         const previousYear = previousDate.getFullYear();
 
         const currentMonthIncomeList = income.filter(tx => {
-            const date = new Date(tx.date);
+            const date = parseLocalDate(tx.date);
             return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
         });
 
         const currentMonthExpensesList = expenses.filter(tx => {
-            const date = new Date(tx.date);
+            const date = parseLocalDate(tx.date);
             return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
         });
 
         const previousMonthIncomeList = income.filter(tx => {
-            const date = new Date(tx.date);
+            const date = parseLocalDate(tx.date);
             return date.getMonth() === previousMonth && date.getFullYear() === previousYear;
         });
 

@@ -189,8 +189,8 @@ const App: React.FC = () => {
     const totalExpenses = useMemo(() => expenses.reduce((sum, item) => addMoney(sum, item.amount), 0), [expenses]);
     const netAmount = useMemo(() => subtractMoney(totalIncome, totalExpenses), [totalIncome, totalExpenses]);
 
-    const totalAssetsLent = useMemo(() => loans.filter(l => l.type === LoanType.Lent).reduce((sum, item) => sum + item.outstandingAmount, 0), [loans]);
-    const totalLiabilitiesBorrowed = useMemo(() => loans.filter(l => l.type === LoanType.Borrowed).reduce((sum, item) => sum + item.outstandingAmount, 0), [loans]);
+    const totalAssetsLent = useMemo(() => loans.filter(l => l.type === LoanType.Lent).reduce((sum, item) => addMoney(sum, item.outstandingAmount), 0), [loans]);
+    const totalLiabilitiesBorrowed = useMemo(() => loans.filter(l => l.type === LoanType.Borrowed).reduce((sum, item) => addMoney(sum, item.outstandingAmount), 0), [loans]);
 
 
     const allTransactionsForExport = useMemo(() => {
@@ -284,6 +284,7 @@ const App: React.FC = () => {
             if (!goal) return;
             const updated = {
                 ...goal,
+                startingBalance: addMoney(goal.startingBalance, contribution.amount),
                 extraContributions: [{ ...contribution, id: generateId() }, ...(goal.extraContributions || [])]
             };
             await setDoc(doc(db, 'users', auth.currentUser.uid, 'savingsGoals', goalId.toString()), updated);
@@ -453,8 +454,8 @@ const App: React.FC = () => {
                             items={filteredIncome} 
                             allItems={income}
                             total={totalIncome} 
-                            addIncome={(item) => addTransaction(TransactionType.Income, item)} 
-                            deleteIncome={(id) => deleteTransaction(TransactionType.Income, id)}
+                            addIncome={(item: Omit<Transaction, 'id'>) => addTransaction(TransactionType.Income, item)} 
+                            deleteIncome={(id: number) => deleteTransaction(TransactionType.Income, id)}
                             categoryFilter={categoryFilter}
                             onClearFilter={() => setCategoryFilter(null)}
                             categories={incomeCategories}
@@ -466,15 +467,15 @@ const App: React.FC = () => {
                             items={filteredExpenses} 
                             allItems={expenses}
                             total={totalExpenses} 
-                            addExpense={(item) => addTransaction(TransactionType.Expense, item)} 
-                            deleteExpense={(id) => deleteTransaction(TransactionType.Expense, id)}
+                            addExpense={(item: Omit<Transaction, 'id'>) => addTransaction(TransactionType.Expense, item)} 
+                            deleteExpense={(id: number) => deleteTransaction(TransactionType.Expense, id)}
                             categoryFilter={categoryFilter}
                             onClearFilter={() => setCategoryFilter(null)}
                             expenseCategories={allExpenseCategories}
                             theme={theme}
                         />;
             case ViewType.More:
-                return <MoreView onSelectFeature={(feature, origin) => {
+                return <MoreView onSelectFeature={(feature: FeatureType, origin?: { x: number; y: number; }) => {
                     setFeatureOrigin(origin || null);
                     setActiveFeature(feature);
                 }} />;
@@ -695,7 +696,7 @@ const App: React.FC = () => {
                     activeView={activeView} 
                     userProfile={userProfile}
                     setActiveView={setActiveView}
-                    onSelectFeature={(feature, origin) => {
+                    onSelectFeature={(feature: FeatureType, origin?: { x: number; y: number; }) => {
                         setFeatureOrigin(origin || null);
                         setActiveFeature(feature);
                     }}

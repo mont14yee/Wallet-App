@@ -5,7 +5,7 @@ import { Transaction, ViewType } from '../types';
 import ViewContainer from '../components/ViewContainer';
 import CategoryChart from '../components/charts/CategoryChart';
 import FinancialHealthChart from '../components/charts/FinancialHealthChart';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface DashboardViewProps {
@@ -100,7 +100,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
 
     const filteredData = useMemo(() => {
         const startDate = getStartDate(dateRange);
-        const filterFn = (transaction: Transaction) => !startDate || new Date(transaction.date) >= startDate;
+        const filterFn = (transaction: Transaction) => !startDate || parseLocalDate(transaction.date) >= startDate;
         
         const filteredIncome = allIncome.filter(filterFn);
         const filteredExpenses = allExpenses.filter(filterFn);
@@ -132,7 +132,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
         const groupedByMonth: { [key: string]: { income: number, expenses: number } } = {};
 
         all.forEach(tx => {
-            const date = new Date(tx.date);
+            const date = parseLocalDate(tx.date);
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             if (!groupedByMonth[monthKey]) {
                 groupedByMonth[monthKey] = { income: 0, expenses: 0 };

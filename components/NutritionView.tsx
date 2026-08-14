@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Transaction, MealPlan } from '../types';
+import { auth } from '../firebaseConfig';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface NutritionViewProps {
@@ -26,9 +27,13 @@ const NutritionView: React.FC<NutritionViewProps> = ({ shoppingList }) => {
         }
 
         try {
+            const token = await auth.currentUser?.getIdToken();
             const response = await fetch('/api/meal-plan', {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ shoppingItems })
             });
             if (!response.ok) throw new Error('API Error');

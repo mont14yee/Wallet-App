@@ -1,7 +1,7 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo, useCallback } from 'react';
 import { SavingsGoal, ExtraContribution, CompoundingFrequency } from '../types';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from 'recharts';
 
@@ -44,7 +44,7 @@ const compoundBalance = (goal: SavingsGoal, fromDate: Date, toDate: Date) => {
         }
 
         // Add monthly contribution
-        balance += monthlyContribution;
+        balance = addMoney(balance, monthlyContribution);
 
         // Add any extra contributions for this month
         const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
@@ -63,7 +63,7 @@ const compoundBalance = (goal: SavingsGoal, fromDate: Date, toDate: Date) => {
 const calculateProjection = (goal: SavingsGoal) => {
     const today = new Date();
     today.setHours(0,0,0,0);
-    const endDate = new Date(goal.deadline);
+    const endDate = parseLocalDate(goal.deadline);
     
     if (endDate <= today) return { projection: [], currentValue: goal.startingBalance, futureValue: goal.startingBalance };
 
