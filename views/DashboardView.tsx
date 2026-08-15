@@ -59,6 +59,57 @@ const CHART_COLORS = ['#10b981', '#f43f5e', '#ff9800', '#2196f3', '#8b5cf6', '#0
 
 const getIconForCategory = (cat: string) => CATEGORY_ICONS[cat] || 'fa-tag';
 
+const StatCard: React.FC<{ title: string; amount: number; icon: string; color: string; borderColor: string; currencySettings: any }> = ({ title, amount, icon, color, borderColor, currencySettings }) => (
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div className="flex items-center justify-between">
+            <div>
+                 <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{title}</p>
+                 <h3 className={`text-3xl font-semibold mt-2 tracking-tight ${amount >= 0 ? 'text-gray-800 dark:text-gray-100' : 'text-red-500'}`}>
+                    {formatCurrency(amount, currencySettings)}
+                </h3>
+            </div>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-inner border border-white/40 dark:border-gray-600/30" style={{ backgroundColor: color + '15', color: color }}>
+                <i className={icon}></i>
+            </div>
+        </div>
+    </div>
+);
+
+const CategoryList: React.FC<{ breakdown: {name: string, amount: number}[], total: number, type: 'income' | 'expense', onCategoryClick: (cat: string, t: 'income'|'expense') => void, currencySettings: any, t: any }> = ({ breakdown, total, type, onCategoryClick, currencySettings, t }) => (
+    <div className="space-y-4 mt-4">
+        {breakdown.slice(0, 5).map((item, index) => {
+            const percentage = total > 0 ? (item.amount / total) * 100 : 0;
+            const catColor = CHART_COLORS[index % CHART_COLORS.length];
+            return (
+                <button 
+                    key={item.name}
+                    onClick={() => onCategoryClick(item.name, type)}
+                    className="w-full group text-left p-3 rounded-3xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-inner" style={{ backgroundColor: catColor }}>
+                                <i className={`fas ${getIconForCategory(item.name)} text-sm`}></i>
+                            </div>
+                            <div>
+                                <span className="block font-black text-gray-800 dark:text-gray-100 text-sm leading-tight">{item.name}</span>
+                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">{percentage.toFixed(1)}% {t('percentage')}</span>
+                            </div>
+                        </div>
+                        <span className="font-black text-sm text-gray-800 dark:text-gray-100">{formatCurrency(item.amount, currencySettings)}</span>
+                    </div>
+                    <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner">
+                        <div 
+                            className="h-full rounded-full transition-all duration-1000 ease-out" 
+                            style={{ width: `${percentage}%`, backgroundColor: catColor }}
+                        ></div>
+                    </div>
+                </button>
+            );
+        })}
+    </div>
+);
+
 const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmount, allIncome, allExpenses, theme, setActiveView, setCategoryFilter, exportToCSV, assets, liabilities }) => {
     const { t, currencySettings, language } = useLanguage();
     const [dateRange, setDateRange] = useState('month');
@@ -166,69 +217,18 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
         setCategoryFilter(category);
         setActiveView(type === 'income' ? ViewType.Income : ViewType.Expenses);
     };
-    
-    const StatCard: React.FC<{ title: string; amount: number; icon: string; color: string; borderColor: string }> = ({ title, amount, icon, color, borderColor }) => (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <div className="flex items-center justify-between">
-                <div>
-                     <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{title}</p>
-                     <h3 className={`text-3xl font-semibold mt-2 tracking-tight ${amount >= 0 ? 'text-gray-800 dark:text-gray-100' : 'text-red-500'}`}>
-                        {formatCurrency(amount, currencySettings)}
-                    </h3>
-                </div>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-inner border border-white/40 dark:border-gray-600/30" style={{ backgroundColor: color + '15', color: color }}>
-                    <i className={icon}></i>
-                </div>
-            </div>
-        </div>
-    );
-
-    const CategoryList: React.FC<{ breakdown: {name: string, amount: number}[], total: number, type: 'income' | 'expense' }> = ({ breakdown, total, type }) => (
-        <div className="space-y-4 mt-4">
-            {breakdown.slice(0, 5).map((item, index) => {
-                const percentage = total > 0 ? (item.amount / total) * 100 : 0;
-                const catColor = CHART_COLORS[index % CHART_COLORS.length];
-                return (
-                    <button 
-                        key={item.name}
-                        onClick={() => handleCategoryClick(item.name, type)}
-                        className="w-full group text-left p-3 rounded-3xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1"
-                    >
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-inner" style={{ backgroundColor: catColor }}>
-                                    <i className={`fas ${getIconForCategory(item.name)} text-sm`}></i>
-                                </div>
-                                <div>
-                                    <span className="block font-black text-gray-800 dark:text-gray-100 text-sm leading-tight">{item.name}</span>
-                                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">{percentage.toFixed(1)}% {t('percentage')}</span>
-                                </div>
-                            </div>
-                            <span className="font-black text-sm text-gray-800 dark:text-gray-100">{formatCurrency(item.amount, currencySettings)}</span>
-                        </div>
-                        <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner">
-                            <div 
-                                className="h-full rounded-full transition-all duration-1000 ease-out" 
-                                style={{ width: `${percentage}%`, backgroundColor: catColor }}
-                            ></div>
-                        </div>
-                    </button>
-                );
-            })}
-        </div>
-    );
 
     return (
         <ViewContainer title={t('dashboard')} icon="fas fa-chart-line">
             {/* Main Stats */}
             <div className="mb-8 max-w-sm">
-                <StatCard title={t('netAmount')} amount={netAmount} icon="fas fa-balance-scale" color="#2196f3" borderColor="border-blue-500" />
+                <StatCard title={t('netAmount')} amount={netAmount} icon="fas fa-balance-scale" color="#2196f3" borderColor="border-blue-500" currencySettings={currencySettings} />
             </div>
 
             {/* Assets & Liabilities */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                 <StatCard title={t('assets')} amount={assets} icon="fas fa-hand-holding-usd" color="#4caf50" borderColor="border-green-500" />
-                 <StatCard title={t('liabilities')} amount={liabilities} icon="fas fa-file-invoice-dollar" color="#ffc107" borderColor="border-yellow-500" />
+                 <StatCard title={t('assets')} amount={assets} icon="fas fa-hand-holding-usd" color="#4caf50" borderColor="border-green-500" currencySettings={currencySettings} />
+                 <StatCard title={t('liabilities')} amount={liabilities} icon="fas fa-file-invoice-dollar" color="#ffc107" borderColor="border-yellow-500" currencySettings={currencySettings} />
             </div>
 
             {/* Time Filter & Period Stats */}
@@ -312,7 +312,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                         </div>
                         <div>
                              <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 px-3">{t('topCategories')}</h4>
-                             <CategoryList breakdown={filteredData.incomeBreakdown} total={filteredData.incomeTotal} type="income" />
+                             <CategoryList breakdown={filteredData.incomeBreakdown} total={filteredData.incomeTotal} type="income" onCategoryClick={handleCategoryClick} currencySettings={currencySettings} t={t} />
                         </div>
                     </div>
                 </div>
@@ -332,7 +332,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                         </div>
                         <div>
                              <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 px-3">{t('topCategories')}</h4>
-                             <CategoryList breakdown={filteredData.expenseBreakdown} total={filteredData.expensesTotal} type="expense" />
+                             <CategoryList breakdown={filteredData.expenseBreakdown} total={filteredData.expensesTotal} type="expense" onCategoryClick={handleCategoryClick} currencySettings={currencySettings} t={t} />
                         </div>
                     </div>
                 </div>

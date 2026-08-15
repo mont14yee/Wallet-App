@@ -28,10 +28,44 @@ import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from
 import { collection, onSnapshot, doc, setDoc, deleteDoc, query } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from './firebaseError';
 
-
-
-
-
+const FullScreenContainer: React.FC<{
+    title: string;
+    icon: string;
+    children: React.ReactNode;
+    theme: 'light' | 'dark';
+    animationStyle: React.CSSProperties;
+    onClose: () => void;
+}> = ({ title, icon, children, theme, animationStyle, onClose }) => (
+    <div className={`fixed inset-0 z-[100] flex flex-col ${theme === 'dark' ? 'bg-[#0b0f19]' : 'bg-[#fcfdfd]'}`} style={animationStyle}>
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+            {theme === 'light' ? (
+                <>
+                    <div className="absolute -bottom-[15%] -left-[20%] w-[80%] h-[50%] rounded-full bg-[#7dd3fc]/30 blur-[100px]" />
+                    <div className="absolute -bottom-[10%] -right-[20%] w-[80%] h-[60%] rounded-full bg-[#d8b4fe]/20 blur-[120px]" />
+                </>
+            ) : (
+                <>
+                    <div className="absolute -bottom-[15%] -left-[20%] w-[80%] h-[50%] rounded-full bg-[#0284c7]/15 blur-[120px]" />
+                </>
+            )}
+        </div>
+            
+        <header className="flex-shrink-0 pt-12 pb-4 px-6 relative z-10 flex items-center justify-between no-print">
+            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" aria-label="Close">
+                <i className="fas fa-chevron-left text-sm"></i>
+            </button>
+            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                {title}
+            </h2>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <i className="fas fa-sliders-h text-sm"></i>
+            </button>
+        </header>
+        <main className="flex-1 overflow-y-auto relative z-10 px-2 sm:px-4">
+            {children}
+        </main>
+    </div>
+);
 
 const App: React.FC = () => {
     const { language, t, currencySettings } = useLanguage();
@@ -55,7 +89,7 @@ const App: React.FC = () => {
 
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
         const savedTheme = localStorage.getItem('theme');
-        return (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
+        return (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'dark';
     });
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [isChatbotOpen, setChatbotOpen] = useState(false);

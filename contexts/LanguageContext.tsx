@@ -13,8 +13,8 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const DEFAULT_CURRENCY_SETTINGS: CurrencySettings = {
-    symbol: 'ETB',
-    symbolPlacement: 'before',
+    symbol: '$',
+    symbolPlacement: 'after',
     numberFormat: 'comma-dot',
     decimalPlaces: 2,
 };

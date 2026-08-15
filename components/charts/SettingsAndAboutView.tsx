@@ -59,6 +59,12 @@ interface SettingsProps {
     setTheme: (theme: 'light' | 'dark') => void;
 }
 
+const ToggleSwitch: React.FC<{isOn: boolean; onToggle: () => void; id: string}> = ({ isOn, onToggle, id }) => (
+    <button onClick={onToggle} id={id} className={`relative inline-flex items-center h-7 rounded-full w-12 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-offset-gray-900 ${isOn ? 'bg-gradient-to-r from-purple-500 to-cyan-500' : 'bg-gray-200 dark:bg-gray-700'}`}>
+        <span className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform duration-300 shadow-sm ${isOn ? 'translate-x-6' : 'translate-x-1'}`} />
+    </button>
+);
+
 const SettingsContent: React.FC<SettingsProps> = ({ theme, setTheme }) => {
     const { t, language, setLanguage, currencySettings, setCurrencySettings } = useLanguage();
     const [appLockEnabled, setAppLockEnabled] = useState(false);
@@ -74,12 +80,6 @@ const SettingsContent: React.FC<SettingsProps> = ({ theme, setTheme }) => {
         }
         localStorage.setItem('theme', theme);
     }, [theme]);
-
-    const ToggleSwitch: React.FC<{isOn: boolean; onToggle: () => void; id: string}> = ({ isOn, onToggle, id }) => (
-        <button onClick={onToggle} id={id} className={`relative inline-flex items-center h-7 rounded-full w-12 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-offset-gray-900 ${isOn ? 'bg-gradient-to-r from-purple-500 to-cyan-500' : 'bg-gray-200 dark:bg-gray-700'}`}>
-            <span className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform duration-300 shadow-sm ${isOn ? 'translate-x-6' : 'translate-x-1'}`} />
-        </button>
-    );
 
     const selectClasses = "w-full sm:w-auto bg-transparent border border-gray-200 dark:border-gray-600 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-cyan-500/50 text-sm font-medium text-gray-700 dark:text-gray-200";
     const inputClasses = "w-full sm:w-24 bg-transparent border border-gray-200 dark:border-gray-600 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-cyan-500/50 text-sm font-medium text-gray-700 dark:text-gray-200 text-center";
