@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-      window.addEventListener('error', (e) => {
-        document.body.innerHTML = '<div style="color:red;padding:20px;"><h1>Error</h1><pre>' + e.error?.stack + '</pre></div>';
-      });
-      window.addEventListener('unhandledrejection', (e) => {
-        document.body.innerHTML = '<div style="color:red;padding:20px;"><h1>Unhandled Promise Rejection</h1><pre>' + e.reason?.stack + '</pre></div>';
-      });
-    </script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

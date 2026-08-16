@@ -3,7 +3,7 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Transaction } from '../types';
 import ViewContainer from './ViewContainer';
-import { formatCurrency } from '../constants';
+import { formatCurrency, parseLocalDate } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import MonthlyFlowChart from './charts/MonthlyFlowChart';
 
@@ -157,14 +157,14 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
 
         const currentMonthTotal = allItems
             .filter(item => {
-                const itemDate = new Date(item.date);
+                const itemDate = parseLocalDate(item.date);
                 return itemDate >= currentMonthStart && itemDate <= now;
             })
             .reduce((sum, item) => addMoney(sum, item.amount), 0);
 
         const previousMonthTotal = allItems
             .filter(item => {
-                const itemDate = new Date(item.date);
+                const itemDate = parseLocalDate(item.date);
                 return itemDate >= firstDayOfPreviousMonth && itemDate <= lastDayOfPreviousMonth;
             })
             .reduce((sum, item) => addMoney(sum, item.amount), 0);
@@ -188,13 +188,13 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
 
     // Display all items, sorted by date descending
     const displayedItems = useMemo(() => {
-        return [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return [...items].sort((a, b) => parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime());
     }, [items]);
 
     const monthlyData = useMemo(() => {
         const grouped: { [key: string]: number } = {};
         allItems.forEach(item => {
-            const date = new Date(item.date);
+            const date = parseLocalDate(item.date);
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             grouped[monthKey] = addMoney(grouped[monthKey] || 0, item.amount);
         });

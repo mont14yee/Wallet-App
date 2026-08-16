@@ -1,7 +1,7 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from './utils/money';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ViewType, Transaction, SavingsGoal, TransactionType, AllTransaction, UserProfile, FeatureType, Loan, LoanType, Repayment, ExtraContribution, Subscription, ScheduledTransaction, Investment } from './types';
-import { generateId, INITIAL_INCOME, INITIAL_EXPENSES, INITIAL_SAVINGS_GOALS, getIncomeCategories, getAllExpenseCategories, getShoppingCategories, INITIAL_LOANS, INITIAL_SUBSCRIPTIONS, INITIAL_SCHEDULED_TRANSACTIONS, INITIAL_INVESTMENTS } from './constants';
+import { generateId, INITIAL_INCOME, INITIAL_EXPENSES, INITIAL_SAVINGS_GOALS, getIncomeCategories, getAllExpenseCategories, getShoppingCategories, INITIAL_LOANS, INITIAL_SUBSCRIPTIONS, INITIAL_SCHEDULED_TRANSACTIONS, INITIAL_INVESTMENTS, parseLocalDate } from './constants';
 import Header from './components/Header';
 import FooterNav from './components/FooterNav';
 import DashboardView from './views/DashboardView';
@@ -24,7 +24,7 @@ import CalendarView from './views/CalendarView';
 import InvestmentsView from './views/InvestmentsView';
 
 import { auth, db } from './firebaseConfig';
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, query } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from './firebaseError';
 
@@ -57,9 +57,7 @@ const FullScreenContainer: React.FC<{
             <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 {title}
             </h2>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <i className="fas fa-sliders-h text-sm"></i>
-            </button>
+            <div className="w-10 h-10"></div>
         </header>
         <main className="flex-1 overflow-y-auto relative z-10 px-2 sm:px-4">
             {children}
@@ -77,6 +75,9 @@ const App: React.FC = () => {
     const [userProfile, setUserProfileState] = useState<UserProfile | null>(null);
     const [authReady, setAuthReady] = useState(false);
     const [loginError, setLoginError] = useState<string | null>(null);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isSignUp, setIsSignUp] = useState(false);
 
     const [income, setIncome] = useState<Transaction[]>([]);
     const [expenses, setExpenses] = useState<Transaction[]>([]);
@@ -154,7 +155,7 @@ const App: React.FC = () => {
         };
     }, []);
 
-    const login = async () => {
+    const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
         setLoginError(null);
         try {
@@ -167,6 +168,33 @@ const App: React.FC = () => {
                 setLoginError("Multiple popup requests were cancelled. Please try again.");
             } else if (error.code === 'auth/popup-blocked') {
                 setLoginError("Sign-in popup was blocked by your browser. Please allow popups for this site.");
+            } else {
+                setLoginError("Login failed: " + (error.message || "Unknown error"));
+            }
+        }
+    };
+
+    const loginWithEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoginError(null);
+        if (!email || !password) {
+            setLoginError("Please enter both email and password.");
+            return;
+        }
+        try {
+            if (isSignUp) {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } else {
+                await signInWithEmailAndPassword(auth, email, password);
+            }
+        } catch (error: any) {
+            console.error("Login failed", error);
+            if (error.code === 'auth/invalid-credential') {
+                setLoginError("Invalid email or password.");
+            } else if (error.code === 'auth/email-already-in-use') {
+                setLoginError("Email is already in use.");
+            } else if (error.code === 'auth/weak-password') {
+                setLoginError("Password should be at least 6 characters.");
             } else {
                 setLoginError("Login failed: " + (error.message || "Unknown error"));
             }
@@ -231,7 +259,7 @@ const App: React.FC = () => {
         return [
             ...income.map(tx => ({...tx, type: t('income')})),
             ...expenses.map(tx => ({...tx, type: t('expense')})),
-        ].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        ].sort((a,b) => parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime());
     }, [income, expenses, t]);
     
     const exportToCSV = () => {
@@ -558,42 +586,10 @@ const App: React.FC = () => {
              animation: 'fadeIn 0.2s ease-out forwards'
         };
 
-        const FullScreenContainer: React.FC<{title: string; icon: string; children: React.ReactNode;}> = ({ title, icon, children }) => (
-            <div className={`fixed inset-0 z-[100] flex flex-col ${theme === 'dark' ? 'bg-[#0b0f19]' : 'bg-[#fcfdfd]'}`} style={animationStyle}>
-                {/* Background overlay similar to main app */}
-                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-                    {theme === 'light' ? (
-                        <>
-                            <div className="absolute -bottom-[15%] -left-[20%] w-[80%] h-[50%] rounded-full bg-[#7dd3fc]/30 blur-[100px]" />
-                            <div className="absolute -bottom-[10%] -right-[20%] w-[80%] h-[60%] rounded-full bg-[#d8b4fe]/20 blur-[120px]" />
-                        </>
-                    ) : (
-                        <>
-                            <div className="absolute -bottom-[15%] -left-[20%] w-[80%] h-[50%] rounded-full bg-[#0284c7]/15 blur-[120px]" />
-                        </>
-                    )}
-                </div>
-                
-                <header className="flex-shrink-0 pt-12 pb-4 px-6 relative z-10 flex items-center justify-between no-print">
-                    <button onClick={() => setActiveFeature(null)} className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" aria-label={t('cancel')}>
-                        <i className="fas fa-chevron-left text-sm"></i>
-                    </button>
-                    <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                        {title}
-                    </h2>
-                    <button className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <i className="fas fa-sliders-h text-sm"></i>
-                    </button>
-                </header>
-                <main className="flex-1 overflow-y-auto relative z-10 px-2 sm:px-4">
-                    {children}
-                </main>
-            </div>
-        );
     
         switch (activeFeature) {
             case FeatureType.ActivityLog:
-                return <FullScreenContainer title={t('activityLog')} icon="fas fa-book-open">
+                return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('activityLog')} icon="fas fa-book-open">
                     <ActivityLogView
                         transactions={allTransactions}
                         addTransaction={addTransaction}
@@ -602,7 +598,7 @@ const App: React.FC = () => {
                     />
                 </FullScreenContainer>;
             case FeatureType.Savings:
-                return <FullScreenContainer title={t('savings')} icon="fas fa-piggy-bank">
+                return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('savings')} icon="fas fa-piggy-bank">
                     <SavingsView 
                         items={savingsGoals} 
                         addSavingsGoal={addSavingsGoal} 
@@ -613,7 +609,7 @@ const App: React.FC = () => {
                     />
                 </FullScreenContainer>;
             case FeatureType.Subscriptions:
-                return <FullScreenContainer title={t('subscriptions')} icon="fas fa-sync-alt">
+                return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('subscriptions')} icon="fas fa-sync-alt">
                     <SubscriptionsView
                         subscriptions={subscriptions}
                         addSubscription={addSubscription}
@@ -625,7 +621,7 @@ const App: React.FC = () => {
                     />
                 </FullScreenContainer>;
             case FeatureType.Scheduled:
-                 return <FullScreenContainer title={t('scheduledTransactions')} icon="fas fa-calendar-alt">
+                 return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('scheduledTransactions')} icon="fas fa-calendar-alt">
                     <ScheduledView
                         scheduled={scheduledTransactions}
                         addScheduled={addScheduledTransaction}
@@ -637,7 +633,7 @@ const App: React.FC = () => {
                     />
                  </FullScreenContainer>;
             case FeatureType.Calendar:
-                return <FullScreenContainer title={t('calendar')} icon="fas fa-calendar-day">
+                return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('calendar')} icon="fas fa-calendar-day">
                     <CalendarView
                         scheduled={scheduledTransactions}
                         loans={loans}
@@ -645,15 +641,15 @@ const App: React.FC = () => {
                     />
                 </FullScreenContainer>;
             case FeatureType.Calculator:
-                return <FullScreenContainer title={t('calculator')} icon="fas fa-calculator">
+                return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('calculator')} icon="fas fa-calculator">
                     <div className="p-4 sm:p-6 h-full"><CalculatorView /></div>
                 </FullScreenContainer>;
             case FeatureType.Converter:
-                 return <FullScreenContainer title={t('converter')} icon="fas fa-exchange-alt">
+                 return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('converter')} icon="fas fa-exchange-alt">
                     <div className="p-4 sm:p-6 h-full"><CurrencyConverter /></div>
                  </FullScreenContainer>;
             case FeatureType.Reports:
-                 return <FullScreenContainer title={t('reports')} icon="fas fa-file-invoice-dollar">
+                 return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('reports')} icon="fas fa-file-invoice-dollar">
                     <ReportsView
                         userProfile={userProfile}
                         allTransactions={allTransactions}
@@ -663,7 +659,7 @@ const App: React.FC = () => {
                     />
                  </FullScreenContainer>;
             case FeatureType.Loans:
-                 return <FullScreenContainer title={t('loans')} icon="fas fa-hand-holding-usd">
+                 return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('loans')} icon="fas fa-hand-holding-usd">
                     <LoansView
                         loans={loans}
                         addLoan={addLoan}
@@ -672,7 +668,7 @@ const App: React.FC = () => {
                     />
                  </FullScreenContainer>;
             case FeatureType.Nutrition:
-                 return <FullScreenContainer title={t('nutrition')} icon="fas fa-heartbeat">
+                 return <FullScreenContainer theme={theme} animationStyle={animationStyle} onClose={() => setActiveFeature(null)} title={t('nutrition')} icon="fas fa-heartbeat">
                     <NutritionView shoppingList={shoppingListForTargets} />
                  </FullScreenContainer>;
             default:
@@ -695,12 +691,55 @@ const App: React.FC = () => {
                             {loginError}
                         </div>
                     )}
+                    <form onSubmit={loginWithEmail} className="flex flex-col gap-4 mb-6">
+                        <input
+                            type="email"
+                            placeholder="Email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${theme === 'dark' ? 'bg-[#1a2235] border-gray-700 text-white placeholder-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'}`}
+                            required
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${theme === 'dark' ? 'bg-[#1a2235] border-gray-700 text-white placeholder-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'}`}
+                            required
+                        />
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl shadow transition-colors"
+                        >
+                            {isSignUp ? 'Create Account' : 'Sign In'}
+                        </button>
+                    </form>
+                    <div className="text-sm mb-6 text-gray-500 dark:text-gray-400">
+                        {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                        <button
+                            onClick={() => setIsSignUp(!isSignUp)}
+                            className="ml-2 text-blue-500 hover:text-blue-600 hover:underline"
+                        >
+                            {isSignUp ? 'Sign in here' : 'Sign up here'}
+                        </button>
+                    </div>
+                    
+                    <div className="relative flex items-center justify-center mb-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                        </div>
+                        <div className="relative px-4 text-sm text-gray-500 bg-[#fcfdfd] dark:bg-[#0b0f19]">
+                            Or continue with
+                        </div>
+                    </div>
+
                     <button 
-                        onClick={login}
-                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-medium py-3 px-6 rounded-2xl shadow-lg transition-transform transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3"
+                        onClick={loginWithGoogle}
+                        className={`w-full font-medium py-3 px-6 rounded-xl shadow transition-colors flex items-center justify-center space-x-3 border ${theme === 'dark' ? 'bg-[#1a2235] border-gray-700 hover:bg-gray-800 text-white' : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'}`}
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg>
-                        <span>Sign in with Google</span>
+                        <span>Google</span>
                     </button>
                 </div>
             </div>
